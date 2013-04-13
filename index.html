@@ -1,0 +1,3571 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc3" />
+  <meta name="author" content="RT-Thread Studio" />
+  <title>RT-Thread Programming Manual</title>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+  <style type="text/css">
+  <!--
+  body { background: white}
+-->
+  </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/RT-Thread/rt-thread">Fork Me on GitHub</a>
+          <h1 id="project_title">RT-Thread Programming Guide</h1>
+          <h2 id="project_tagline">RT-Thread RTOS</h2>
+          <section id="downloads">
+            <a class="tar_download_link" href="https://github.com/RT-Thread/rt-thread/tarball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+    <div id="main_content_wrap" class="outer">
+       <section id="main_content" class="inner">
+      
+<h1><a href="#">目录</a></h1> 
+<div id="TOC">
+<ul>
+<li><a href="#前言">前言</a><ul>
+<li><a href="#本书结构">本书结构</a></li>
+<li><a href="#适合读者">适合读者</a></li>
+</ul></li>
+<li><a href="#简介">简介</a><ul>
+<li><a href="#rt-thread-的软件结构">RT-Thread 的软件结构</a></li>
+</ul></li>
+<li><a href="#线程调度与管理">线程调度与管理</a><ul>
+<li><a href="#实时系统的需求">实时系统的需求</a></li>
+<li><a href="#线程调度器">线程调度器</a></li>
+<li><a href="#线程控制块">线程控制块</a></li>
+<li><a href="#线程状态">线程状态</a></li>
+<li><a href="#空闲线程">空闲线程</a></li>
+<li><a href="#调度器相关接口">调度器相关接口</a><ul>
+<li><a href="#调度器初始化">调度器初始化</a></li>
+<li><a href="#启动调度器">启动调度器</a></li>
+<li><a href="#执行调度">执行调度</a></li>
+<li><a href="#设置调度器钩子">设置调度器钩子</a></li>
+</ul></li>
+<li><a href="#线程相关接口">线程相关接口</a><ul>
+<li><a href="#线程创建">线程创建</a></li>
+<li><a href="#线程删除">线程删除</a></li>
+<li><a href="#线程初始化">线程初始化</a></li>
+<li><a href="#线程脱离">线程脱离</a></li>
+<li><a href="#线程启动">线程启动</a></li>
+<li><a href="#当前线程">当前线程</a></li>
+<li><a href="#线程让出处理器">线程让出处理器</a></li>
+<li><a href="#线程睡眠">线程睡眠</a></li>
+<li><a href="#线程挂起">线程挂起</a></li>
+<li><a href="#线程恢复">线程恢复</a></li>
+<li><a href="#线程控制">线程控制</a></li>
+<li><a href="#初始化空闲线程">初始化空闲线程</a></li>
+<li><a href="#设置空闲线程钩子">设置空闲线程钩子</a></li>
+</ul></li>
+<li><a href="#线程设计">线程设计</a><ul>
+<li><a href="#程序的运行上下文">程序的运行上下文</a></li>
+<li><a href="#线程设计要点">线程设计要点</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#定时器">定时器</a><ul>
+<li><a href="#定时器管理">定时器管理</a></li>
+<li><a href="#定时器超时函数">定时器超时函数</a></li>
+<li><a href="#定时器管理控制块">定时器管理控制块</a></li>
+<li><a href="#定时器管理接口">定时器管理接口</a><ul>
+<li><a href="#定时器管理系统初始化">定时器管理系统初始化</a></li>
+<li><a href="#创建定时器">创建定时器</a></li>
+<li><a href="#删除定时器">删除定时器</a></li>
+<li><a href="#初始化定时器">初始化定时器</a></li>
+<li><a href="#脱离定时器">脱离定时器</a></li>
+<li><a href="#启动定时器">启动定时器</a></li>
+<li><a href="#停止定时器">停止定时器</a></li>
+<li><a href="#控制定时器">控制定时器</a></li>
+</ul></li>
+<li><a href="#合理使用定时器">合理使用定时器</a><ul>
+<li><a href="#定时器执行上下文">定时器执行上下文</a></li>
+<li><a href="#os-tick与定时器精度">OS tick与定时器精度</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#任务间同步及通信">任务间同步及通信</a><ul>
+<li><a href="#关闭中断">关闭中断</a><ul>
+<li><a href="#使用场合">使用场合</a></li>
+</ul></li>
+<li><a href="#调度器锁">调度器锁</a><ul>
+<li><a href="#使用场合-1">使用场合</a></li>
+</ul></li>
+<li><a href="#信号量">信号量</a><ul>
+<li><a href="#信号量控制块">信号量控制块</a></li>
+<li><a href="#信号量相关接口">信号量相关接口</a><ul>
+<li><a href="#删除信号量">删除信号量</a></li>
+<li><a href="#初始化信号量">初始化信号量</a></li>
+<li><a href="#脱离信号量">脱离信号量</a></li>
+<li><a href="#获取信号量">获取信号量</a></li>
+<li><a href="#无等待获取信号量">无等待获取信号量</a></li>
+<li><a href="#释放信号量">释放信号量</a></li>
+</ul></li>
+<li><a href="#使用场合-2">使用场合</a><ul>
+<li><a href="#线程同步">线程同步</a></li>
+<li><a href="#锁">锁</a></li>
+<li><a href="#中断与线程的同步">中断与线程的同步</a></li>
+<li><a href="#资源计数">资源计数</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#互斥量">互斥量</a><ul>
+<li><a href="#互斥量控制块">互斥量控制块</a></li>
+<li><a href="#互斥量相关接口">互斥量相关接口</a><ul>
+<li><a href="#创建互斥量">创建互斥量</a></li>
+<li><a href="#删除互斥量">删除互斥量</a></li>
+<li><a href="#初始化互斥量">初始化互斥量</a></li>
+<li><a href="#脱离互斥量">脱离互斥量</a></li>
+<li><a href="#获取互斥量">获取互斥量</a></li>
+<li><a href="#释放互斥量">释放互斥量</a></li>
+</ul></li>
+<li><a href="#使用场合-3">使用场合</a></li>
+</ul></li>
+<li><a href="#事件">事件</a><ul>
+<li><a href="#事件控制块">事件控制块</a></li>
+<li><a href="#事件相关接口">事件相关接口</a><ul>
+<li><a href="#创建事件">创建事件</a></li>
+<li><a href="#删除事件">删除事件</a></li>
+<li><a href="#脱离事件">脱离事件</a></li>
+<li><a href="#接收事件">接收事件</a></li>
+<li><a href="#发送事件">发送事件</a></li>
+</ul></li>
+<li><a href="#使用场合-4">使用场合</a></li>
+</ul></li>
+<li><a href="#邮箱">邮箱</a><ul>
+<li><a href="#邮箱控制块">邮箱控制块</a></li>
+<li><a href="#邮箱相关接口">邮箱相关接口</a><ul>
+<li><a href="#创建邮箱">创建邮箱</a></li>
+<li><a href="#删除邮箱">删除邮箱</a></li>
+<li><a href="#初始化邮箱">初始化邮箱</a></li>
+<li><a href="#脱离邮箱">脱离邮箱</a></li>
+<li><a href="#发送邮件">发送邮件</a></li>
+<li><a href="#等待方式发送邮件">等待方式发送邮件</a></li>
+<li><a href="#接收邮件">接收邮件</a></li>
+</ul></li>
+<li><a href="#使用场合-5">使用场合</a></li>
+</ul></li>
+<li><a href="#消息队列">消息队列</a><ul>
+<li><a href="#消息队列控制块">消息队列控制块</a></li>
+<li><a href="#消息队列相关接口">消息队列相关接口</a><ul>
+<li><a href="#创建消息队列">创建消息队列</a></li>
+<li><a href="#删除消息队列">删除消息队列</a></li>
+<li><a href="#初始化消息队列">初始化消息队列</a></li>
+<li><a href="#脱离消息队列">脱离消息队列</a></li>
+</ul></li>
+<li><a href="#发送消息">发送消息</a><ul>
+<li><a href="#发送紧急消息">发送紧急消息</a></li>
+<li><a href="#接收消息">接收消息</a></li>
+</ul></li>
+<li><a href="#使用场合-6">使用场合</a><ul>
+<li><a href="#典型使用">典型使用</a></li>
+<li><a href="#同步消息">同步消息</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><a href="#内存管理">内存管理</a><ul>
+<li><a href="#静态内存池管理">静态内存池管理</a><ul>
+<li><a href="#静态内存池工作原理">静态内存池工作原理</a><ul>
+<li><a href="#静态内存池控制块">静态内存池控制块</a></li>
+</ul></li>
+<li><a href="#静态内存池接口">静态内存池接口</a><ul>
+<li><a href="#创建内存池">创建内存池</a></li>
+<li><a href="#删除内存池">删除内存池</a></li>
+<li><a href="#初始化内存池">初始化内存池</a></li>
+<li><a href="#脱离内存池">脱离内存池</a></li>
+<li><a href="#分配内存块">分配内存块</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#动态内存管理">动态内存管理</a><ul>
+<li><a href="#小内存管理模块">小内存管理模块</a></li>
+<li><a href="#slab内存管理模块">SLAB内存管理模块</a></li>
+<li><a href="#动态内存接口">动态内存接口</a><ul>
+<li><a href="#初始化系统堆空间">初始化系统堆空间</a></li>
+<li><a href="#分配内存块-1">分配内存块</a></li>
+<li><a href="#重分配内存块">重分配内存块</a></li>
+<li><a href="#分配多内存块">分配多内存块</a></li>
+<li><a href="#释放内存块">释放内存块</a></li>
+<li><a href="#设置分配钩子函数">设置分配钩子函数</a></li>
+<li><a href="#设置内存释放钩子函数">设置内存释放钩子函数</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><a href="#io设备管理">I/O设备管理</a><ul>
+<li><a href="#块设备">块设备</a></li>
+<li><a href="#io设备控制块">I/O设备控制块</a></li>
+<li><a href="#io设备管理接口">I/O设备管理接口</a><ul>
+<li><a href="#注册设备">注册设备</a></li>
+<li><a href="#卸载设备">卸载设备</a></li>
+<li><a href="#初始化所有设备">初始化所有设备</a></li>
+<li><a href="#查找设备">查找设备</a></li>
+<li><a href="#打开设备">打开设备</a></li>
+<li><a href="#关闭设备">关闭设备</a></li>
+<li><a href="#读设备">读设备</a></li>
+<li><a href="#写设备">写设备</a></li>
+<li><a href="#控制设备">控制设备</a></li>
+<li><a href="#设置数据接收指示">设置数据接收指示</a></li>
+<li><a href="#设置发送完成指示">设置发送完成指示</a></li>
+</ul></li>
+<li><a href="#设备驱动">设备驱动</a><ul>
+<li><a href="#设备驱动必须实现的接口">设备驱动必须实现的接口</a></li>
+<li><a href="#设备驱动实现的步骤">设备驱动实现的步骤</a></li>
+<li><a href="#stm32f103的串口驱动">STM32F103的串口驱动</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#异常与中断">异常与中断</a></li>
+<li><a href="#应用模块">应用模块</a></li>
+<li><a href="#移植">移植</a></li>
+<li><a href="#scons构建系统">scons构建系统</a><ul>
+<li><a href="#简单的scontruct">简单的SContruct</a></li>
+<li><a href="#sconstruct与sconscript">SConstruct与SConscript</a></li>
+<li><a href="#rt-thread构建">RT-Thread构建</a><ul>
+<li><a href="#编写bsp的sconstruct">编写BSP的SConstruct</a></li>
+<li><a href="#编写组件的sconscript">编写组件的SConscript</a></li>
+<li><a href="#rt-thread-building脚本">RT-Thread building脚本</a></li>
+<li><a href="#进阶">进阶</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#finsh-shell">finsh shell</a><ul>
+<li><a href="#简介-1">简介</a></li>
+</ul></li>
+<li><a href="#文件系统">文件系统</a><ul>
+<li><a href="#简介-2">简介</a></li>
+</ul></li>
+<li><a href="#lwip---轻型tcpip协议栈">lwIP - 轻型TCP/IP协议栈</a><ul>
+<li><a href="#简介-3">简介</a></li>
+</ul></li>
+<li><a href="#图形用户界面">图形用户界面</a><ul>
+<li><a href="#简介-4">简介</a></li>
+<li><a href="#服务端客户端构架">服务端/客户端构架</a></li>
+</ul></li>
+<li><a href="#posix接口">POSIX接口</a><ul>
+<li><a href="#简介-5">简介</a></li>
+</ul></li>
+<li><a href="#电子书markdown入门">电子书markdown入门</a><ul>
+<li><a href="#标题段落区块代码">标题、段落、区块代码</a><ul>
+<li><a href="#修辞和强调">修辞和强调</a></li>
+</ul></li>
+<li><a href="#列表">列表</a><ul>
+<li><a href="#链接">链接</a></li>
+<li><a href="#图片">图片</a></li>
+<li><a href="#代码">代码</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<h1 id="前言"><a href="#TOC">前言</a></h1>
+<p>本书是RT-Thread的编程手册，用于指导在RT-Thread实时操作系统环境下如何进行编程。</p>
+<h2 id="本书结构"><a href="#TOC">本书结构</a></h2>
+<h2 id="适合读者"><a href="#TOC">适合读者</a></h2>
+<p>本书用于指导在RT-Thread实时操作系统环境下如何进行编程。# 致谢 #</p>
+<p>@larrycaiyu 提供本书电子版的模板；</p>
+<p>@grissiom 解决本书电子版的代码语法高亮；</p>
+<h1 id="简介"><a href="#TOC">简介</a></h1>
+<p>本手册是RT-Thread开源实时嵌入式操作系统的手册。</p>
+<h2 id="rt-thread-的软件结构"><a href="#TOC">RT-Thread 的软件结构</a></h2>
+<div class="figure">
+<img src="figures/System_Arch.png" alt="RT-Thread软件结构" /><p class="caption">RT-Thread软件结构</p>
+</div>
+<p>RT-Thread实时操作系统是一个分层的操作系统，它包括了：</p>
+<ul>
+<li>底层移植、驱动层，这层与硬件密切相关，由Drivers和CPU移植相构成。</li>
+<li>硬实时内核，这层是RT-Thread的核心，包括了内核系统中对象的实现，例如多线程及其调度，信号量，邮箱，消息队列，内存管理，定时器等实现。</li>
+<li>组件层，这些是基于RT-Thread核心基础上的外围组件，例如文件系统，命令行shell接口，lwIP轻型TCP/IP协议栈，GUI图形用户界面等。</li>
+</ul>
+<h1 id="线程调度与管理"><a href="#TOC">线程调度与管理</a></h1>
+<p>一个典型的简单程序会设计成一个串行的系统运行：按照准确的指令步骤一次一个指令的运行。但是这种方法对于复杂一些的实时应用是不可行的，因为它们通常需要在固定的时间内“同时”处理多个输入输出，实时软件应用程序应该设计成一个并行的系统。</p>
+<p>并行设计需要开发人员把一个应用分解成一个个小的，可调度的，序列化的程序单元。当合理的划分任务，正确的并行执行时，这种设计能够让系统满足实时系统的性能及时间的要求。</p>
+<h2 id="实时系统的需求"><a href="#TOC">实时系统的需求</a></h2>
+<p>如第二章里描述的，系统的实时性指的是在固定的时间内正确地对外部事件做出响应。这个“时间内”(英文叫做deadline、有时中文也翻译成时间约束)，系统内部会做一些处理，例如输入数据的分析计算，加工处理等。而在这段时间之外，系统可能会空闲下来，做一些空余的事。 例如一个手机终端，当一个电话拨入的时候，系统应当及时发出振铃、声音提示以通知主人有来电，询问是否进行接听。而在非电话拨入的时候，人们可以用它进行一些其它工作，例如听音乐，玩游戏等。 从上面的例子我们可以看出，实时系统是一种需求倾向性的系统，对于实时的事件需要在第一时间内做出回应，而对非实时任务则可以在实时事件到达时为之让路——被抢占。所以实时系统也可以看成是一个等级系统，不同重要性的任务具有不同的优先等级：重要的事件能够优先被响应执行，非重要的事件可以适当往后推迟。 在RT-Thread实时操作系统中，任务采用了线程来实现，线程是RT-Thread中最基本的调度单位，它描述了一个任务执行的上下文关系，也描述了这个任务所处的优先等级。重要的任务能拥有相对较高的优先级，非重要的任务优先级可以放低，并且可以类似Linux一样具备分时的效果。</p>
+<h2 id="线程调度器"><a href="#TOC">线程调度器</a></h2>
+<p>RT-Thread中提供的线程调度器是基于优先级的全抢占式调度：在系统中除了中断处理函数、调度器上锁部分的代码和禁止中断的代码是不可抢占的之外，系统的其他部分都是可以抢占的，包括线程调度器自身。系统总共支持256个优先级(0 ～ 255，数值越小的优先级越高，0为最高优先级，255分配给空闲线程使用，一般用户不使用。在一些资源比较紧张的系统中，可以根据实际情况选择只支持8个或32个优先级的系统配置)。当系统中，当有比当前线程优先级更高的线程就绪时，当前线程将立刻被换出，高优先级线程抢占处理器运行。</p>
+<p>如图5-1所示，在RT-Thread调度器的实现中,包含了一个共256个优先级队列的数组(如果系统最大支持32个优先级，那么这里将是一个包含了32个优先级队列的数组)，每个数组元素中放置相同优先级链表的表头。这些相同优先级的列表形成一个双向环形链表，最低优先级线程链表一般只包含一个idle线程。</p>
+<p>在优先级队列1#和2#中，可以看到三个线程：线程A、线程B和线程C。由于线程A、B的优先级比线程C的高，所以此时线程C得不到运行，必须要等待优先级队列1#的中所有线程（因为阻塞）都让出处理器后才能得到执行。</p>
+<p>一个操作系统如果只是具备了高优先级任务能够“立即”获得处理器并得到执行的特点，那么它仍然不算是实时操作系统。因为这个查找最高优先级线程的过程决定了调度时间是否具有确定性，例如一个包含n个就绪任务的系统中，如果仅仅从头找到尾，那么这个时间将直接和n相关，而下一个就绪线程抉择时间的长短将会极大的影响系统的实时性。当所有就绪线程都链接在它们对应的优先级队列中时，抉择过程就将演变为在优先级数组中寻找具有最高优先级线程的非空链表。RT-Thread内核中采用了基于位图的优先级算法（时间复杂度O(1)，即与就绪线程的多少无关），通过位图的定位快速的获得优先级最高的线程。</p>
+<p>RT-Thread内核中也允许创建相同优先级的线程。相同优先级的线程采用时间片轮转方式进行调度（也就是通常说的分时调度器），时间片轮转调度仅在当前系统中无更高优先级就绪线程存在的情况下才有效。例如在图5-1中，我们假设线程A和线程B一次最大允许运行的时间片分别是10个时钟节拍和7个时钟节拍。那么线程B将在线程A的时间片结束（10个时钟节拍）后才能运行，但如果中途线程A被挂起了，即线程A在运行的途中，因为试图去持有不可用的资源，而导致线程状态从就绪状态更改为阻塞状态，那么线程B会因为其优先级成为系统中就绪线程中最高的而马上运行。每个线程的时间片大小都可以在初始化或创建这个线程时指定。</p>
+<p>因为RT-Thread调度器的实现是采用优先级链表的方式，所以系统中的总线程数不受限制，只和系统所能提供的内存资源相关。为了保证系统的实时性，系统尽最大可能地保证高优先级的线程得以运行。线程调度的原则是一旦任务状态发生了改变，并且当前运行的线程优先级小于优先级队列组中线程最高优先级时，立刻进行线程切换（除非当前系统处于中断处理程序中或禁止线程切换的状态）。</p>
+<h2 id="线程控制块"><a href="#TOC">线程控制块</a></h2>
+<p>线程控制块是操作系统用于控制线程的一个数据结构，它会存放线程的一些信息，例如优先级，线程名称等，也包含线程与线程之间连接用的链表结构，线程等待事件集合等。</p>
+<p>在RT-Thread实时操作系统中，线程控制块由结构体struct rt_thread表示。另外一种C表达方式rt_thread_t，表示的是线程的句柄，在C语言中的实现是指向线程控制块的指针，详细定义情况见代码5-1:</p>
+<p>代码5-1：线程控制块结构</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/* rt_thread_t线程句柄，指向线程控制块的指针 */</span>
+<span class="kw">typedef</span> <span class="kw">struct</span> rt_thread* rt_thread_t;
+
+<span class="co">/*</span>
+<span class="co"> * 线程控制块</span>
+<span class="co"> */</span>
+<span class="kw">struct</span> rt_thread
+{
+    <span class="co">/* RT-Thread根对象定义 */</span>
+    <span class="dt">char</span>        name[RT_NAME_MAX];      <span class="co">/* 对象的名称                */</span>
+    rt_uint8_t      type;                   <span class="co">/* 对象的类型                */</span>
+rt_uint8_t      flags;                  <span class="co">/* 对象的参数                */</span>
+<span class="ot">#ifdef RT_USING_MODULE</span>
+    <span class="dt">void</span>            *module_id;            <span class="co">/* 线程所在的模块ID         */</span>
+<span class="ot">#endif</span>
+    rt_list_t       list;                   <span class="co">/* 对象链表                     */</span>
+
+    rt_list_t       tlist;                  <span class="co">/* 线程链表                 */</span>
+
+    <span class="co">/* 栈指针及入口 */</span>
+    <span class="dt">void</span>*           sp;                     <span class="co">/* 线程的栈指针               */</span>
+    <span class="dt">void</span>*           entry;                  <span class="co">/* 线程入口                     */</span>
+    <span class="dt">void</span>*           parameter;              <span class="co">/* 线程入口参数               */</span>
+    <span class="dt">void</span>*           stack_addr;             <span class="co">/* 线程栈地址                */</span>
+    rt_uint16_t     stack_size;             <span class="co">/* 线程栈大小                */</span>
+
+    rt_err_t        error;                  <span class="co">/* 线程错误号                */</span>
+
+    rt_uint8_t      stat;                   <span class="co">/* 线程状态                     */</span>
+
+    <span class="co">/* 优先级相关域 */</span>
+    rt_uint8_t      current_priority;       <span class="co">/* 当前优先级                */</span>
+    rt_uint8_t      init_priority;          <span class="co">/* 初始线程优先级              */</span>
+<span class="ot">#if RT_THREAD_PRIORITY_MAX &gt; 32</span>
+    rt_uint8_t      number;
+    rt_uint8_t      high_mask;
+<span class="ot">#endif</span>
+    rt_uint32_t     number_mask;
+
+<span class="ot">#if defined(RT_USING_EVENT)</span>
+    <span class="co">/* 事件相关域 */</span>
+    rt_uint32_t     event_set;
+    rt_uint8_t      event_info;
+<span class="ot">#endif</span>
+
+    rt_ubase_t      init_tick;          <span class="co">/* 线程初始tick             */</span>
+    rt_ubase_t      remaining_tick;     <span class="co">/* 线程当次运行剩余tick     */</span>
+
+    <span class="kw">struct</span> rt_timer thread_timer;       <span class="co">/* 线程定时器            */</span>
+
+    <span class="co">/* 当线程退出时，需要执行的清理函数 */</span>
+    <span class="dt">void</span>            (*cleanup)(<span class="kw">struct</span> rt_thread *tid);
+    rt_uint32_t     user_data;          <span class="co">/* 用户数据                 */</span>
+};</code></pre>
+<p>其中init_priority是线程创建时指定的线程优先级，在线程运行过程当中是不会被改变的（除非用户执行线程控制函数进行手动调整线程优先级）。cleanup成员是RT-Thread 1.0.0中新引入的成员，它会在线程退出时，被idle线程回调一次以执行用户设置的清理现场等工作。最后的一个成员user_data可由用户挂接一些数据信息到线程控制块中，以提供类似线程私有数据的实现，例如LwIP线程中用于放置定时器链表的表头。</p>
+<h2 id="线程状态"><a href="#TOC">线程状态</a></h2>
+<p>线程运行的过程中，一个时间内只允许一个线程在处理器中运行，从运行的过程上划分，线程有多种不同的运行状态，如运行态，非运行态等。在RT-Thread实时操作系统中，线程包含四种状态，操作系统会自动根据它运行的情况而动态调整它的状态。 RT-Thread中的四种线程状态如下所示：</p>
+<p>状态 描述 RT_THREAD_INIT 线程初始状态。当线程刚开始创建还没开始运行时就处于这个状态；在这个状态下，线程不参与调度 RT_THREAD_SUSPEND 挂起态、阻塞态。线程此时被挂起：它可能因为资源不可用而挂起等待；或线程主动延时一段时间而被挂起。在这个状态下，线程不参与调度 RT_THREAD_READY 就绪态。线程正在运行；或当前线程运行完让出处理器后，操作系统寻找最高优先级的就绪态线程运行 RT_THREAD_RUNNING 运行态。线程当前正在运行，在单核系统中，只有rt_thread_self()函数返回的线程处于这个状态；在多核系统中则不受这个限制。 RT_THREAD_CLOSE 线程结束态。当线程运行结束时将处于这个状态。这个状态的线程不参与线程的调度。</p>
+<p>RT-Thread实时操作系统提供一系列的操作系统调用接口，使得线程的状态在这五个状态之间来回的变换。例如一个就绪态的线程由于申请一个资源（例如使用rt_sem_take)，而可能进入挂起态。又例如因为一个外部中断发生了，系统转入中断服务例程，在中断服务例程中释放了相应的资源，导致把等待在这个资源上的高优先级线程唤醒，改变其状态为就绪态，导致当前运行线程切换等等。</p>
+<p>几种状态间的转换关系如图5-2所示：</p>
+<p>线程通过调用函数rt_thread_create/init进入到初始状态（RT_THREAD_INIT）；再通过调用函数rt_thread_startup进入到就绪状态（RT_THREAD_READY）；当处于就绪状态的线程调用rt_thread_delay，rt_sem_take，rt_mb_recv等函数或由于获取不到资源时，将进入到挂起状态（RT_THREAD_SUSPEND）；处于挂起状态的线程，如果等待超时依然未能获得资源或由于其他线程释放了资源，那么它将返回到就绪状态。挂起状态的线程，如果调用rt_thread_delete/detach将更改为关闭状态（RT_THREAD_CLOSE）；而运行状态的线程，如果运行结束会在线程最后部分执行rt_thread_exit函数而更改为关闭状态（RT_THREAD_CLOSE）</p>
+<h2 id="空闲线程"><a href="#TOC">空闲线程</a></h2>
+<p>空闲线程是系统线程中一个比较特殊的线程，它具有最低的优先级，当系统中无其他线程可运行时，调度器将调度到空闲线程。空闲线程通常是一个死循环，永远不被挂起。 RT-Thread实时操作系统为空闲线程提供了钩子函数（钩子函数：用户提供的一段代码，在系统运行的某一路径上设置一个钩子，当系统经过这个位置时，转而执行这个钩子函数，然后再返回到它的正常路径上），可以让系统在空闲的时候执行一些特定的任务，例如系统运行指示灯闪烁，电源管理等。除了调用钩子函数，RT-Thread也把线程清理（rt_thread-&gt;cleanup回调函数）函数、真正的线程删除动作放到了空闲线程中（在删除线程时，仅改变线程的状态为关闭状态不再参与系统调度）。</p>
+<h2 id="调度器相关接口"><a href="#TOC">调度器相关接口</a></h2>
+<h3 id="调度器初始化"><a href="#TOC">调度器初始化</a></h3>
+<p>在系统启动时需要执行调度器的初始化，以初始化系统调度器用到的一些全局变量。调度器初始化可以调用下面的函数接口。</p>
+<p>void rt_system_scheduler_init(void);</p>
+<p>参数：无 返回值：无</p>
+<h3 id="启动调度器"><a href="#TOC">启动调度器</a></h3>
+<p>在系统完成初始化后切换到第一个线程，可以调用下面的函数接口。</p>
+<p>void rt_system_scheduler_start(void);</p>
+<p>在调用这个函数时，它会查找系统中优先级最高的就绪态线程，然后切换过去执行。另外在调用这个函数前，必须先做idle线程的初始化，即保证系统至少能够找到一个就绪状态的线程执行。此函数是永远不会返回的。</p>
+<p>参数：无 返回值：无</p>
+<h3 id="执行调度"><a href="#TOC">执行调度</a></h3>
+<p>让调度器执行一次线程的调度可通过下面的函数接口。</p>
+<p>void rt_schedule(void);</p>
+<p>调用这个函数后，系统会计算一次系统中就绪态的线程，如果存在比当前线程更高优先级的线程时，系统将切换到高优先级的线程去。上层应用程序一般不需要调用这个函数。</p>
+<p>参数：无 返回值：无</p>
+<p>注： 在中断服务例程中也可以调用这个函数，如果满足任务切换的条件，它会记录下中断前的线程及需要切换到的更高优先级线程，在中断服务例程处理完毕后执行真正的线程上下文切换（即中断中的线程上下文切换），最终切换到目标线程去。</p>
+<h3 id="设置调度器钩子"><a href="#TOC">设置调度器钩子</a></h3>
+<p>在整个系统的运行时，系统都处于线程运行、中断触发-响应中断、切换到其他线程，甚至是线程间的切换过程中，或者说系统的上下文切换是系统中最普遍的事件。有时用户可能会想知道在一个时刻发生了什么样的线程切换，可以通过调用下面的函数接口设置一个相应的钩子函数。在系统线程切换时，这个钩子函数将被调用：</p>
+<p>void rt_scheduler_sethook(void (<em>hook)(struct rt_thread</em> from, struct rt_thread* to));</p>
+<p>这个函数用于把用户提供的hook函数设置到系统调度器钩子中，当系统进行上下文切换时，这个hook函数将会被系统调用。</p>
+<p>这个hook函数的声明如下：</p>
+<p>void hook(struct rt_thread* from, struct rt_thread* to);</p>
+<p>参数： from – 表示系统所要切入的线程的控制块指针； to – 表示系统所要切出的线程的控制块指针。 返回值： 无</p>
+<p>注： 请仔细编写你的钩子函数，如有不甚将很可能导致整个系统运行不正常（在这个钩子函数中，基本上不允许调用系统API，更不应该导致当前运行的上下文挂起）。</p>
+<h2 id="线程相关接口"><a href="#TOC">线程相关接口</a></h2>
+<h3 id="线程创建"><a href="#TOC">线程创建</a></h3>
+<p>一个线程要成为可执行的对象就必须由操作系统的内核来为它创建（初始化）一个线程句柄。可以通过如下的函数接口来创建一个线程。</p>
+<p>rt_thread_t rt_thread_create(const char* name, void (<em>entry)(void</em> parameter), void* parameter, rt_uint32_t stack_size, rt_uint8_t priority, rt_uint32_t tick);</p>
+<p>调用这个函数时，系统会从动态堆内存中分配一个线程句柄（即TCB，线程控制块）以及按照参数中指定的栈大小从动态堆内存中分配相应的空间。分配出来的栈空间是按照rtconfig.h中配置的RT_ALIGN_SIZE方式对齐。</p>
+<p>参数： name – 线程的名称；线程名称的最大长度由rtconfig.h中定义的RT_NAME_MAX宏指定，多余部分会被自动截掉。 entry – 线程入口函数； parameter – 线程入口函数参数； stack_size – 线程栈大小，单位是字节。在大多数系统中需要做栈空间地址对齐（例如ARM体系结构中需要向4字节地址对齐）。 priority – 线程的优先级。优先级范围根据系统配置情况（rtconfig.h中的RT_THREAD_PRIORITY_MAX宏定义），如果支持的是256级优先级，那么范围是从0 ～ 255，数值越小优先级越高，0代表最高优先级。 tick – 线程的时间片大小。时间片（tick）的单位是操作系统的时钟节拍。当系统中存在相同优先级线程时，这个参数指定线程一次调度能够运行的最大时间长度。这个时间片运行结束时，调度器自动选择下一个就绪态的同优先级线程进行运行。</p>
+<p>返回值：创建成功返回线程句柄；否则返回RT_NULL。</p>
+<p>注： 确定一个线程的栈空间大小，是一件令人头痛的事情。在RT-Thread中，可以先指定一个稍微大的栈空间，例如指定大小为1024或2048，然后在FinSH shell中通过list_thread()命令查看线程运行的过程中线程所使用的栈的大小，通过此命令，能够看到从线程启动运行时，到当前时刻点，线程使用的最大栈深度，从而可以确定栈空间的大小并加以修改)。</p>
+<p>下面举例创建一个线程加以说明：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：动态线程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个程序会初始化2个动态线程：</span>
+<span class="co"> * 它们拥有共同的入口函数，相同的优先级</span>
+<span class="co"> * 但是它们的入口参数不相同</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="ot">#define THREAD_PRIORITY     25</span>
+<span class="ot">#define THREAD_STACK_SIZE   512</span>
+<span class="ot">#define THREAD_TIMESLICE        5</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+<span class="co">/* 线程入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint32_t count = <span class="dv">0</span>;
+    rt_uint32_t no = (rt_uint32_t) parameter; <span class="co">/* 获得正确的入口参数 */</span>
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 打印线程计数值输出 */</span>
+        rt_kprintf(<span class="st">&quot;thread%d count: %d</span><span class="ch">\n</span><span class="st">&quot;</span>, no, count ++);
+
+        <span class="co">/* 休眠10个OS Tick */</span>
+        rt_thread_delay(<span class="dv">10</span>);
+    }
+}
+
+<span class="co">/* 用户应用入口 */</span>
+<span class="dt">int</span> rt_application_init()
+{
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>,
+        thread_entry, (<span class="dt">void</span>*)<span class="dv">1</span>, <span class="co">/* 线程入口是thread_entry, 入口参数是1 */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>,
+        thread_entry, (<span class="dt">void</span>*)<span class="dv">2</span>, <span class="co">/* 线程入口是thread_entry, 入口参数是2 */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="线程删除"><a href="#TOC">线程删除</a></h3>
+<p>对于一些使用rt_thread_create创建出来的线程，当不需要使用，或者运行出错时，我们可以使用下面的函数接口来从系统中把线程完全删除掉：</p>
+<p>rt_err_t rt_thread_delete(rt_thread_t thread);</p>
+<p>调用该函数后，线程对象将会被移出线程队列并且从内核对象管理器中删除，线程占用的堆栈空间也会被释放，收回的空间将重新用于其他的内存分配。 实际上，用rt_thread_delete函数删除线程接口，仅仅是把相应的线程状态更改为RT_THREAD_STATE_CLOSE状态，然后放入到rt_thread_defunct队列中；而真正的删除动作（释放线程控制块和释放线程栈）需要到下一次执行idle线程时，由idle线程完成最后的线程删除动作。用rt_thread_init初始化的静态线程则不能使用此接口删除。</p>
+<p>参数： thread - 要删除的线程句柄； 返回值： 返回RT_EOK</p>
+<p>注： 在线程运行完成，自动结束的情况下，系统会自动删除线程，不需要再调用rt_thread_delete()函数接口。这个接口不应由线程本身来调用以删除线程自身，一般只能由其他线程调用或在定时器超时函数中调用。</p>
+<p>下面举一个删除线程的例子，如下代码：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：删除线程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个例子会创建两个线程，在一个线程中删除另外一个线程。</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="ot">#define THREAD_PRIORITY     25</span>
+<span class="ot">#define THREAD_STACK_SIZE   512</span>
+<span class="ot">#define THREAD_TIMESLICE        5</span>
+
+<span class="co">/*</span>
+<span class="co"> * 线程删除(rt_thread_delete)函数仅适合于动态线程，为了在一个线程</span>
+<span class="co"> * 中访问另一个线程的控制块，所以把线程块指针声明成全局类型以供全</span>
+<span class="co"> * 局访问</span>
+<span class="co"> */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL, tid2 = RT_NULL;
+
+<span class="co">/* 线程1的入口函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint32_t count = <span class="dv">0</span>;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 线程1采用低优先级运行，一直打印计数值 */</span>
+        rt_kprintf(<span class="st">&quot;thread count: %d</span><span class="ch">\n</span><span class="st">&quot;</span>, count ++);
+    }
+}
+
+<span class="co">/* 线程2的入口函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="co">/* 线程2拥有较高的优先级，以抢占线程1而获得执行 */</span>
+
+    <span class="co">/* 线程2启动后先睡眠10个OS Tick */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/*</span>
+<span class="co">     * 线程2唤醒后直接删除线程1，删除线程1后，线程1自动脱离就绪线程</span>
+<span class="co">     * 队列</span>
+<span class="co">     */</span>
+    rt_thread_delete(tid1);
+    tid1 = RT_NULL;
+
+    <span class="co">/*</span>
+<span class="co">     * 线程2继续休眠10个OS Tick然后退出，线程2休眠后应切换到idle线程</span>
+<span class="co">     * idle线程将执行真正的线程1控制块和线程栈的删除</span>
+<span class="co">     */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/*</span>
+<span class="co">     * 线程2运行结束后也将自动被删除(线程控制块和线程栈依然在idle线</span>
+<span class="co">     * 程中释放)</span>
+<span class="co">     */</span>
+    tid2 = RT_NULL;
+}
+
+<span class="co">/* 应用入口 */</span>
+<span class="dt">int</span> rt_application_init()
+{
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>, <span class="co">/* 线程1的名称是t1 */</span>
+        thread1_entry, RT_NULL,   <span class="co">/* 入口是thread1_entry，参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL) <span class="co">/* 如果获得线程控制块，启动这个线程 */</span>
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="co">/* 创建线程1 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>, <span class="co">/* 线程1的名称是t2 */</span>
+        thread2_entry, RT_NULL,   <span class="co">/* 入口是thread2_entry，参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY - <span class="dv">1</span>, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL) <span class="co">/* 如果获得线程控制块，启动这个线程 */</span>
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="线程初始化"><a href="#TOC">线程初始化</a></h3>
+<p>线程的初始化可以使用下面的函数接口完成：</p>
+<pre><code>rt_err_t rt_thread_init(struct rt_thread* thread,
+    const char* name,
+    void (*entry)(void* parameter), void* parameter,
+    void* stack_start, rt_uint32_t stack_size,
+    rt_uint8_t priority, rt_uint32_t tick);</code></pre>
+<p>rt_thread_init函数用来初始化静态线程对象。而线程句柄（或者说线程控制块指针），线程栈由用户提供。静态线程是指，线程控制块、线程运行栈一般都设置为全局变量，在编译时就被确定、被分配处理，内核不负责动态分配内存空间。需要注意的是，用户提供的栈首地址需做系统对齐（例如ARM上需要做4字节对齐）。</p>
+<p>参数： thread – 线程句柄。线程句柄由用户提供出来，并指向对应的线程控制块内存地址。 name – 线程的名称；线程名称的最大长度由rtconfig.h中定义的RT_NAME_MAX宏指定，多余部分会被自动截掉。 entry – 线程入口函数； parameter – 线程入口函数参数； stack_size – 线程栈大小，单位是字节。在大多数系统中需要做栈空间地址对齐（例如ARM体系结构中需要向4字节地址对齐）。 priority – 线程的优先级。优先级范围根据系统配置情况（rtconfig.h中的RT_THREAD_PRIORITY_MAX宏定义），如果支持的是256级优先级，那么范围是从0 ～ 255，数值越小优先级越高，0代表最高优先级。 tick – 线程的时间片大小。时间片（tick）的单位是操作系统的时钟节拍。当系统中存在相同优先级线程时，这个参数指定线程一次调度能够运行的最大时间长度。这个时间片运行结束时，调度器自动选择下一个就绪态的同优先级线程进行运行。</p>
+<p>返回值：返回RT_EOK；</p>
+<p>下面给出一个线程初始化的例子，如例5-4代码所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：初始化静态线程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个程序会初始化2个静态线程，它们拥有共同的入口函数，但参数不相同</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="ot">#define THREAD_PRIORITY     25</span>
+<span class="ot">#define THREAD_STACK_SIZE   512</span>
+<span class="ot">#define THREAD_TIMESLICE        5</span>
+
+<span class="co">/* 线程1控制块 */</span>
+<span class="dt">static</span> <span class="kw">struct</span> rt_thread thread1;
+<span class="co">/* 线程1栈 */</span>
+ALIGN(<span class="dv">4</span>)
+<span class="dt">static</span> rt_uint8_t thread1_stack[THREAD_STACK_SIZE];
+<span class="co">/* 线程2控制块 */</span>
+<span class="dt">static</span> <span class="kw">struct</span> rt_thread thread2;
+<span class="co">/* 线程2栈 */</span>
+ALIGN(<span class="dv">4</span>)
+<span class="dt">static</span> rt_uint8_t thread2_stack[THREAD_STACK_SIZE];
+
+<span class="co">/* 线程入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint32_t count = <span class="dv">0</span>;
+    rt_uint32_t no = (rt_uint32_t) parameter; <span class="co">/* 获得正确的入口参数 */</span>
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 打印线程计数值输出 */</span>
+        rt_kprintf(<span class="st">&quot;thread%d count: %d</span><span class="ch">\n</span><span class="st">&quot;</span>, no, count ++);
+
+        <span class="co">/* 休眠10个OS Tick */</span>
+        rt_thread_delay(<span class="dv">10</span>);
+    }
+}
+
+<span class="co">/* 用户应用入口 */</span>
+<span class="dt">int</span> rt_application_init()
+{
+    rt_err_t result;
+
+    <span class="co">/* 初始化线程1 */</span>
+    result = rt_thread_init(&amp;thread1, <span class="st">&quot;t1&quot;</span>, <span class="co">/* 线程名：t1 */</span>
+        thread_entry, (<span class="dt">void</span>*)<span class="dv">1</span>, <span class="co">/* 线程的入口是thread_entry，入口参数是1 */</span>
+        &amp;thread1_stack[<span class="dv">0</span>], <span class="kw">sizeof</span>(thread1_stack), <span class="co">/* 线程栈是thread1_stack */</span>
+        THREAD_PRIORITY, <span class="dv">10</span>);
+    <span class="kw">if</span> (result == RT_EOK) <span class="co">/* 如果返回正确，启动线程1 */</span>
+        rt_thread_startup(&amp;thread1);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="co">/* 初始化线程2 */</span>
+    result = rt_thread_init(&amp;thread2, <span class="st">&quot;t2&quot;</span>, <span class="co">/* 线程名：t2 */</span>
+        thread_entry, (<span class="dt">void</span>*)<span class="dv">2</span>, <span class="co">/* 线程的入口是thread_entry，入口参数是2 */</span>
+        &amp;thread2_stack[<span class="dv">0</span>], <span class="kw">sizeof</span>(thread2_stack), <span class="co">/* 线程栈是thread2_stack */</span>
+        THREAD_PRIORITY + <span class="dv">1</span>, <span class="dv">10</span>);
+    <span class="kw">if</span> (result == RT_EOK) <span class="co">/* 如果返回正确，启动线程2 */</span>
+        rt_thread_startup(&amp;thread2);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="线程脱离"><a href="#TOC">线程脱离</a></h3>
+<p>线程脱离将使线程对象在线程队列和内核对象管理器中被删除。线程脱离使用下面的函数：</p>
+<pre><code>rt_err_t rt_thread_detach (rt_thread_t thread);</code></pre>
+<p>参数： thread – 线程句柄，它应该是由rt_thread_init进行初始化的线程句柄。 返回值：返回RT_EOK</p>
+<p>注： 这个函数接口是和rt_thread_delete()函数相对应的， rt_thread_delete()函数操作的对象是rt_thread_create()创建的句柄，而rt_thread_detach()函数操作的对象是使用rt_thread_init()函数初始化的线程控制块。同样，线程本身不应调用这个接口脱离线程本身。</p>
+<p>线程脱离的例子如例5-5所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：线程脱离</span>
+<span class="co"> *</span>
+<span class="co"> * 这个例子会创建两个线程(t1和t2)，在t2中会对t1进行脱离操作；</span>
+<span class="co"> * t1脱离后将不在运行，状态也更改为初始状态</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+<span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+<span class="co">/* 线程1控制块 */</span>
+<span class="dt">static</span> <span class="kw">struct</span> rt_thread thread1;
+<span class="co">/* 线程1栈 */</span>
+<span class="dt">static</span> rt_uint8_t thread1_stack[THREAD_STACK_SIZE];
+<span class="co">/* 线程2控制块 */</span>
+<span class="dt">static</span> <span class="kw">struct</span> rt_thread thread2;
+<span class="co">/* 线程2栈 */</span>
+<span class="dt">static</span> rt_uint8_t thread2_stack[THREAD_STACK_SIZE];
+
+<span class="co">/* 线程1入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint32_t count = <span class="dv">0</span>;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 线程1采用低优先级运行，一直打印计数值 */</span>
+        rt_kprintf(<span class="st">&quot;thread count: %d</span><span class="ch">\n</span><span class="st">&quot;</span>, count ++);
+    }
+}
+
+<span class="co">/* 线程2入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="co">/* 线程2拥有较高的优先级，以抢占线程1而获得执行 */</span>
+
+    <span class="co">/* 线程2启动后先睡眠10个OS Tick */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/*</span>
+<span class="co">     * 线程2唤醒后直接执行线程1脱离，线程1将从就绪线程队列中删除</span>
+<span class="co">     */</span>
+    rt_thread_detach(&amp;thread1);
+
+    <span class="co">/*</span>
+<span class="co">     * 线程2继续休眠10个OS Tick然后退出</span>
+<span class="co">     */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/*</span>
+<span class="co">     * 线程2运行结束后也将自动被从就绪队列中删除，并脱离线程队列</span>
+<span class="co">     */</span>
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    rt_err_t result;
+
+    <span class="co">/* 初始化线程1 */</span>
+    result = rt_thread_init(&amp;thread1, <span class="st">&quot;t1&quot;</span>, <span class="co">/* 线程名：t1 */</span>
+        thread1_entry,      <span class="co">/* 线程的入口是thread1_entr */</span>
+        RT_NULL,            <span class="co">/* 入口参数是RT_NULL*/</span>
+        &amp;thread1_stack[<span class="dv">0</span>],  <span class="co">/* 线程栈是thread1_stack */</span>
+        <span class="kw">sizeof</span>(thread1_stack),
+        THREAD_PRIORITY, <span class="dv">10</span>);
+    <span class="kw">if</span> (result == RT_EOK) <span class="co">/* 如果返回正确，启动线程1 */</span>
+        rt_thread_startup(&amp;thread1);
+
+    <span class="co">/* 初始化线程2 */</span>
+    result = rt_thread_init(&amp;thread2, <span class="st">&quot;t2&quot;</span>, <span class="co">/* 线程名：t2 */</span>
+        thread2_entry,      <span class="co">/* 线程的入口是thread2_entry */</span>
+        RT_NULL,            <span class="co">/* 入口参数是RT_NULL*/</span>
+        &amp;thread2_stack[<span class="dv">0</span>],  <span class="co">/* 线程栈是thread2_stack */</span>
+        <span class="kw">sizeof</span>(thread2_stack),
+        THREAD_PRIORITY - <span class="dv">1</span>, <span class="dv">10</span>);
+    <span class="kw">if</span> (result == RT_EOK) <span class="co">/* 如果返回正确，启动线程2 */</span>
+        rt_thread_startup(&amp;thread2);
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="线程启动"><a href="#TOC">线程启动</a></h3>
+<p>创建（初始化）的线程对象的状态处于初始态，并未进入就绪线程的调度队列，我们可以调用下面的函数接口启动一个线程：</p>
+<pre><code>rt_err_t rt_thread_startup(rt_thread_t thread);</code></pre>
+<p>当调用这个函数时，将把线程的状态更改为就绪状态，并放到相应优先级队列中等待调度。如果新启动的线程优先级比当前线程优先级高，将立刻切换到这个线程。</p>
+<p>参数： thread – 线程句柄。 返回值： 返回RT_EOK</p>
+<h3 id="当前线程"><a href="#TOC">当前线程</a></h3>
+<p>在程序的运行过程中，相同的一段代码可能会被多个线程执行，在执行的时候可以通过下面的函数接口获得当前执行的线程句柄。</p>
+<pre><code>rt_thread_t rt_thread_self(void);</code></pre>
+<p>参数： thread – 线程句柄。 返回值： 返回当前运行的线程句柄。如果调度器还未启动，将返回RT_NULL。</p>
+<p>注： 请不要在中断服务程序中调用此函数，因为它并不能准确获得当前的执行线程。当调度器未启动时，这个接口返回RT_NULL 。</p>
+<h3 id="线程让出处理器"><a href="#TOC">线程让出处理器</a></h3>
+<p>当前线程的时间片用完或者该线程自动要求让出处理器资源时，它不再占有处理器，调度器会选择下一个最高优先级的线程执行。这时，放弃处理器资源的线程仍然在就绪队列中。线程让出处理器使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_thread_yield(void);</code></pre>
+<p>调用该函数后，当前线程首先把自己从它所在的队列中删除，然后把自己挂到与该线程优先级对应的就绪线程链表的尾部，然后激活调度器切换到优先级最高的线程。</p>
+<p>参数： 无 返回值：返回RT_EOK</p>
+<p>线程让出处理器代码的例子如例5-6所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：线程让出处理器</span>
+<span class="co"> * 在这个例子中，将创建两个相同优先级的线程， 它们会通过rt_thread_yield</span>
+<span class="co"> * 接口把处理器相互让给对方进行执行。</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+<span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+<span class="co">/* 线程1入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint32_t count = <span class="dv">0</span>;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 打印线程1的输出 */</span>
+        rt_kprintf(<span class="st">&quot;thread1: count = %d</span><span class="ch">\n</span><span class="st">&quot;</span>, count ++);
+
+        <span class="co">/* 执行yield后应该切换到thread2执行 */</span>
+        rt_thread_yield();
+    }
+}
+
+<span class="co">/* 线程2入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint32_t count = <span class="dv">0</span>;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 打印线程2的输出 */</span>
+        rt_kprintf(<span class="st">&quot;thread2: count = %d</span><span class="ch">\n</span><span class="st">&quot;</span>, count ++);
+
+        <span class="co">/* 执行yield后应该切换到thread1执行 */</span>
+        rt_thread_yield();
+    }
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;thread&quot;</span>,
+        thread1_entry,  <span class="co">/* 线程入口是thread1_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;thread&quot;</span>,
+        thread2_entry,  <span class="co">/* 线程入口是thread2_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<p>注： rt_thread_yield()函数和rt_schedule()函数比较相像，但在有相同优先级的其他就绪态线程存在时，系统的行为是完全不一样的。执行rt_thread_yield()函数后，当前线程被换出，相同优先级的下一个就绪线程将被执行。而执行rt_schedule()函数后，当前线程并不一定被换出，即使被换出，也不会被放到绪线程链表的尾部，而是在系统中选取就绪的优先级最高的线程执行（如果系统中没有比当前线程优先级更高的线程存在，那么执行完rt_schedule()函数后，系统将继续执行当前线程）。</p>
+<h3 id="线程睡眠"><a href="#TOC">线程睡眠</a></h3>
+<p>在实际应用中，我们有时需要让运行的当前线程延迟一段时间，在指定的时间到达后重新运行，这就叫做“线程睡眠”。线程睡眠可使用以下两个函数接口：</p>
+<pre><code>rt_err_t rt_thread_sleep(rt_tick_t tick);
+rt_err_t rt_thread_delay(rt_tick_t tick);</code></pre>
+<p>这两个函数接口的作用相同，调用它们可以使当前线程挂起一段指定的时间，当这个时间过后，线程会被唤醒并再次进入就绪状态。这个函数接受一个参数，该参数指定了线程的休眠时间（单位是OS Tick时钟节拍）。</p>
+<p>参数： tick – 线程睡眠的时间。 返回值： 返回RT_EOK</p>
+<h3 id="线程挂起"><a href="#TOC">线程挂起</a></h3>
+<p>当线程调用rt_thread_delay，调用线程将主动挂起，当调用rt_sem_take，rt_mb_recv等函数时，资源不可使用也将导致调用线程挂起。处于挂起状态的线程，如果其等待的资源超时（超过其设定的等待时间），那么该线程将不再等待这些资源，并返回到就绪状态；或者，当其它线程释放掉该线程所等待的资源时，该线程也会返回到就绪状态。</p>
+<p>线程挂起使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_thread_suspend (rt_thread_t thread);</code></pre>
+<p>参数： thread – 线程句柄。 返回值： 如果这个线程的状态并不是就绪状态，将返回-RT_ERROR，否则返回RT_EOK</p>
+<p>注： 通常不应该使用这个函数来挂起线程本身，如果确实需要采用rt_thread_suspend函数挂起当前任务，需要在调用rt_thread_suspend()函数后立刻调用rt_schedule()函数进行手动的线程上下文切换。</p>
+<p>线程挂起的例子如例5-7所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：挂起线程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个例子中将创建两个动态线程(t1和t2)</span>
+<span class="co"> * 低优先级线程t1在启动后将一直持续运行；</span>
+<span class="co"> * 高优先级线程t2在一定时刻后唤醒并挂起低优先级线程。</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+<span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+<span class="co">/* 线程1入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint32_t count = <span class="dv">0</span>;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 线程1采用低优先级运行，一直打印计数值 */</span>
+        rt_kprintf(<span class="st">&quot;thread count: %d</span><span class="ch">\n</span><span class="st">&quot;</span>, count ++);
+    }
+}
+
+<span class="co">/* 线程2入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="co">/* 延时10个OS Tick */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/* 挂起线程1 */</span>
+    rt_thread_suspend(tid1);
+
+    <span class="co">/* 延时10个OS Tick */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/* 线程2自动退出 */</span>
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>,
+        thread1_entry,  <span class="co">/* 线程入口是thread1_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>,
+        thread2_entry,  <span class="co">/* 线程入口是thread2_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY - <span class="dv">1</span>, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="线程恢复"><a href="#TOC">线程恢复</a></h3>
+<p>线程恢复就是让挂起的线程重新进入就绪状态，如果被恢复线程在所有就绪态线程中，位于最高优先级链表的第一位，那么系统将进行线程上下文的切换。线程恢复使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_thread_resume (rt_thread_t thread);</code></pre>
+<p>参数： thread – 要恢复的线程句柄。 返回值： 如果恢复的线程状态并不是RT_THREAD_SUSPEND状态，将返回-RT_ERROR；否则返回RT_EOK。</p>
+<p>线程恢复的例子如例5-8代码所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：唤醒线程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个例子中将创建两个动态线程(t1和t2)，</span>
+<span class="co"> * 低优先级线程t1将挂起自身</span>
+<span class="co"> * 高优先级线程t2将在一定时刻后唤醒低优先级线程。</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+<span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+<span class="co">/* 线程1入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="co">/* 低优先级线程1开始运行 */</span>
+    rt_kprintf(<span class="st">&quot;thread1 startup%d</span><span class="ch">\n</span><span class="st">&quot;</span>);
+
+    <span class="co">/* 挂起自身 */</span>
+    rt_kprintf(<span class="st">&quot;suspend thread self</span><span class="ch">\n</span><span class="st">&quot;</span>);
+    rt_thread_suspend(tid1);
+    <span class="co">/* 主动执行线程调度 */</span>
+    rt_schedule();
+
+    <span class="co">/* 当线程1被唤醒时 */</span>
+    rt_kprintf(<span class="st">&quot;thread1 resumed</span><span class="ch">\n</span><span class="st">&quot;</span>);
+}
+
+<span class="co">/* 线程2入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="co">/* 延时10个OS Tick */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/* 唤醒线程1 */</span>
+    rt_thread_resume(tid1);
+
+    <span class="co">/* 延时10个OS Tick */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/* 线程2自动退出 */</span>
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>,
+        thread1_entry,  <span class="co">/* 线程入口是thread1_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>,
+        thread2_entry,  <span class="co">/* 线程入口是thread2_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY - <span class="dv">1</span>, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        <span class="kw">return</span> -<span class="dv">1</span>;
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="线程控制"><a href="#TOC">线程控制</a></h3>
+<p>当需要对线程进行一些其他控制时，例如动态更改线程的优先级，可以调用如下函数接口：</p>
+<pre><code>rt_err_t rt_thread_control(rt_thread_t thread, rt_uint8_t cmd, void* arg);</code></pre>
+<p>参数： cmd – 指示控制命令，当前支持的命令包括：</p>
+<ul>
+<li>RT_THREAD_CTRL_CHANGE_PRIORITY - 动态更改线程的优先级；</li>
+<li>RT_THREAD_CTRL_STARTUP - 开始运行一个线程，等同于rt_thread_startup() 函数调用；</li>
+<li>RT_THREAD_CTRL_CLOSE - 关闭一个线程，等同于rt_thread_delete()函数调用。</li>
+</ul>
+<p>arg - 线程句柄。 返回值：RT_EOK</p>
+<h3 id="初始化空闲线程"><a href="#TOC">初始化空闲线程</a></h3>
+<p>根据前面的描述，系统运行过程中必须存在一个最终可运行的线程，可以调用如下函数初始化空闲线程：</p>
+<pre><code>void rt_thread_idle_init(void);</code></pre>
+<p>参数：无 返回值：无</p>
+<h3 id="设置空闲线程钩子"><a href="#TOC">设置空闲线程钩子</a></h3>
+<p>可以调用如下的函数，设置空闲线程运行时执行的钩子函数。</p>
+<pre><code>void rt_thread_idle_set_hook(void (*hook)(void));</code></pre>
+<p>当空闲线程运行时会自动执行设置的钩子函数，由于空闲线程具有系统的最低优先级，所以只有在空闲的时候才会执行此钩子函数。空闲线程是一个线程状态永远为就绪态的线程，因此设置的钩子函数必须保证空闲线程在任何时刻都不会处于挂起状态，例如rt_thread_delay() ， rt_sem_take() 等可能会导致线程挂起的函数都不能使用。</p>
+<p>参数：hook - 设置的钩子函数 返回值：无</p>
+<h2 id="线程设计"><a href="#TOC">线程设计</a></h2>
+<h3 id="程序的运行上下文"><a href="#TOC">程序的运行上下文</a></h3>
+<p>采用RT-Thread的实时系统，程序运行状态只有几种类型，但这几种类型构成了程序运行的上下文状态，当程序员清晰的知道自己编写的程序处于何种状态时，对于程序中应该注意什么要点将非常清晰了然。</p>
+<p>RT-Thread中程序运行的上下文包括：</p>
+<ul>
+<li>中断服务例程;</li>
+<li>普通线程;</li>
+<li>空闲线程;</li>
+</ul>
+<p>空闲线程是RT-Thread系统中采用idle线程钩子方式，在idle线程上钩入自己的功能函数。通常这个空闲线程钩子能够完成一些额外的特殊功能，例如系统运行状态的指示，系统省电模式等。</p>
+<p>除了空闲线程钩子，RT-Thread系统还把idle线程用于一些其他的功能，比如当系统删除一个线程或一个动态线程运行结束时，会先行更改线程状态为非调度状态，然后挂入一个僵尸队列中，真正的系统资源回收工作在idle线程完成。所以，对于空闲线程钩子上挂接的程序，它应该：</p>
+<ul>
+<li>不会挂起idle线程；</li>
+<li>不应该陷入死循环，需要留出部分时间用于系统处理僵尸线程的系统资源回收。</li>
+</ul>
+<p>中断服务例程是一种需要特别注意的上下文环境，它运行在非线程的执行环境下（一般为芯片的一种特殊运行模式），在这个上下文环境中不能进行挂起当前线程的操作，因为当前线程并不存在；另外需要注意的是，中断服务程序最好保持精简短小，因为中断服务是一种高于任何线程的存在。</p>
+<p>普通线程看似没有什么限制程序执行的因素，似乎所有的操作都可以执行。但是做为一个实时系统，一个优先级明确的实时系统，如果一个线程中的程序执行了死循环操作，那么比它优先级低的线程都将不能够得到执行，当然也包括了idle线程。这个是在RT-Thread系统中必须注意的一点。</p>
+<h3 id="线程设计要点"><a href="#TOC">线程设计要点</a></h3>
+<p>在实时系统的章节中提到过，实时系统多数是一种被动的系统，被动的响应外部事件，当外部事件触发后执行设定的工作内容。所以在对系统进行线程设计时，需要考虑到：</p>
+<ul>
+<li><p>上下文环境 对于工作内容，首先需要思考它的执行环境是什么。工作内容与工作内容间是否有重叠的部分，是否能够合并到一起进行处理，或者单独划分开进行处理。例如STM32 Radio中系统对键盘事件的处理：在正常情况下，键盘可以采用中断服务例程直接产生RT-Thread/GUI所要求的键盘事件，然后在中断服务例程中把它发送给RT-Thread/GUI服务线程；但是在STM32 Radio中，由于硬件的限制，系统需要自行查询按键的状态，即不能够在中断服务的上下文中执行，所以应单独开辟一个key线程来处理按键。</p></li>
+<li><p>线程的状态跃迁 这里说的状态跃迁指的是线程运行中状态的变化，从就绪态过渡到挂起态。实时系统一般被设计成一种优先级的系统，如果一个线程只有就绪态而无阻塞态，势必会影响到其他低优先级线程的执行。所以在进行线程设计时，就应该保证线程在不活跃的时候，必须让出处理器，即线程能够主动让出处理器资源，进入到阻塞状态。这需要设计者在设计线程的时候就明确的知道什么情况下需要让线程从就绪态跃迁到阻塞态。</p></li>
+<li><p>线程运行时间长度 线程运行时间长度被定义为，在线程所关心的一种事件或多种事件触发状态下，线程由阻塞态跃迁为就绪态执行设定的工作，再从就绪态跃迁为阻塞态所需要的时间（一般还应加上这段时间内，这个线程不会被其它线程所抢占的先决条件）。线程运行时间长度将和线程的优先级设计密切相关，同时也决定着设计的系统是否能够满足预计的实时响应的指标。</p></li>
+</ul>
+<p>例如，对于事件A对应的服务线程Ta，系统要求的实时响应指标是1ms，而Ta的最大运行时间是500us。此时，系统中还存在着以50ms为周期的另一线程Tb，它每次运行的最大时间长度是100us。在这种情况下，即使把线程Tb的优先级抬到比Ta更高的位置，对系统的实时性指标也没什么影响（因为即使在Ta的运行过程中，Tb抢占了Ta的资源，但在规定的时间内(1ms)，Ta也能够完成对事件A的响应）。</p>
+<h1 id="定时器"><a href="#TOC">定时器</a></h1>
+<h2 id="定时器管理"><a href="#TOC">定时器管理</a></h2>
+<p>定时器，是指从指定的时刻开始，经过一个的指定时间，然后触发一个事件。例如定个时间提醒第二天能够按时起床。定时器有硬件定时器和软件定时器之分：</p>
+<ul>
+<li><p>硬件定时器是芯片本身提供的定时功能。一般是由外部晶振提供给芯片输入时钟，芯片向软件模块提供一组配置寄存器，接受控制输入，到达设定时间值后芯片中断控制器产生时钟中断。硬件定时器的精度一般很高，可以达到纳秒级别，并且是中断触发方式。</p></li>
+<li><p>软件定时器是由操作系统提供的一类系统接口（函数），它构建在硬件定时器基础之上，使系统能够提供不受数目限制的定时器服务。 在操作系统中，通常软件定时器以系统节拍（tick）为单位。节拍指的是周期性硬件定时器两次中断间的间隔时间长度。这个周期性硬件定时器称之为操作系统时钟。软件定时器的精确以这个节拍为单位，数值必须是这个节拍的整数倍，例如节拍是10ms，那么上层软件定时器只能是10ms，20ms，100ms等，而不能取值为15ms。由于节拍定义了系统中定时器能够分辨的精确度，系统可以根据实际系统CPU的处理能力和实时性需求设置合适的数值，tick值设置越小，实时精度越高，但是系统开销也将越大（在1秒中用于处理时钟中断的次数也就越多）。RT-Thread的定时器也基于系统的节拍，提供了基于节拍整数倍的定时能力。</p></li>
+</ul>
+<p>RT-Thread的定时器提供两类定时器机制：第一类是单次触发定时器，这类定时器在启动后只会触发一次定时器事件，然后定时器自动停止。第二类是周期触发定时器，这类定时器会周期性的触发定时器事件，直到用户手动的停止定时器否则将永远持续执行下去。</p>
+<p>下面以一个实际例子来说明RT-Thread软件定时器的基本工作原理。在RT-Thread定时器模块中维护着两个重要的全局变量：</p>
+<ul>
+<li>当前系统经过的tick时间rt_tick（当硬件定时器中断来临时，它将加1）；</li>
+<li>定时器链表rt_timer_list。系统新创建并激活的定时器都会按照以超时时间排序的方式插入到rt_timer_list链表中。</li>
+</ul>
+<p>图9-1 定时器链表</p>
+<p>如图9-1所示，系统当前tick值为20，在当前系统中已经创建并启动了三个定时器，分别是定时时间为50个tick的Timer1、100个tick的Timer2和500个tick的Timer3，这三个定时器分别加上系统当前时间rt_tick = 20，从小到大排序链接在rt_timer_list链表中，形成如图9-1所示的定时器链表结构。</p>
+<p>而rt_tick随着硬件定时器的触发一直在增长（每一次硬件定时器中断来临，rt_tick变量会加1）， 50个tick以后， rt_tick从20增长到70，与Timer1的timeout值相等， 这时会触发与Timer1定时器相关连的超时函数，同时将Timer1从rt_timer_list链表上删除。同理，100个tick和500个tick过去后，与Timer2和Timer3定时器相关联的超时函数会被触发，接着将Time2和Timer3定时器从rt_timer_list链表中删除。</p>
+<p>如果系统当前定时器状态在10个tick以后（rt_tick = 30）有一个任务新创建了一个tick值为300的Timer4定时器，由于Timer4定时器的timeout = rt_tick + 300 =330, 因此它将被插入到Timer2和Timer3定时器中间，形成如图9-2所示链表结构：</p>
+<p>图9-2 插入Timer4后的示意图</p>
+<h2 id="定时器超时函数"><a href="#TOC">定时器超时函数</a></h2>
+<p>软定时器最主要的目的是在系统经过设定的时间后，系统能够自动执行用户设定的动作。当定时器设定的时间到了，即超时时，执行的动作函数称之为定时器的超时函数。与线程不同的是，超时函数的执行上下文环境并未用显式给出。</p>
+<p>在RT-Thread实时操作系统中，定时器超时函数存在着两种情况：</p>
+<ul>
+<li>超时函数在（系统时钟）中断上下文环境中执行；</li>
+<li>超时函数在线程的上下文环境中执行。</li>
+</ul>
+<p>如果超时函数是在中断上下文环境中执行，显然对于超时函数的要求与中断服务例程的要求相同：执行时间应该尽量短，执行时不应导致当前上下文挂起、等待。例如在中断上下文中执行的超时函数它不应该试图去申请动态内存、释放动态内存等（其中一个就包括rt_timer_delete函数调用）。 而超时函数在线程上下文中执行，则不会有这个限制，但是通常也要求超时函数执行时间应该足够短，而不应该影响到其他定时器或本次定时器的下一次周期性超时。 这两种情况在RT-Thread定时器控制块中分别使用参数：RT_TIMER_FLAG_HARD_TIMER和RT_TIMER_FLAG_SOFT_TIMER指定。HARD_TIMER代表的是定时器超时函数执行上下文是在中断上下文环境中执行；SOFT_TIMER代表的是定时器函数执行的上下文是timer线程（在rtconfig.h头文件中应该定义宏RT_USING_TIMER_SOFT使timer线程能被使用）。</p>
+<h2 id="定时器管理控制块"><a href="#TOC">定时器管理控制块</a></h2>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> rt_timer
+{
+    <span class="kw">struct</span> rt_object_parent;
+    rt_list_t list;                         <span class="co">/* 用于链接定时器的链表       */</span>
+    <span class="dt">void</span> (*timeout_func)(<span class="dt">void</span>* parameter);  <span class="co">/* 定时器超时调用的函数       */</span>
+    <span class="dt">void</span> *parameter;                        <span class="co">/* 超时函数用到的入口参数  */</span>
+    rt_tick_t init_tick;                        <span class="co">/* 定时器初始超时节拍数       */</span>
+    rt_tick_t timeout_tick;                     <span class="co">/* 定时器实际超时时的节拍数     */</span>
+};
+<span class="kw">typedef</span> <span class="kw">struct</span> rt_timer* rt_timer_t;</code></pre>
+<p>定时器控制块由struct rt_timer结构体定义，并形成定时器内核对象再链接到内核对象容器中进行管理。list成员则用于把一个激活的（已经启动的）定时器链接到rt_timer_list链表中。</p>
+<h2 id="定时器管理接口"><a href="#TOC">定时器管理接口</a></h2>
+<h3 id="定时器管理系统初始化"><a href="#TOC">定时器管理系统初始化</a></h3>
+<p>初始化定时器管理系统，可以通过下面的函数接口完成：</p>
+<pre><code>void rt_system_timer_init(void);</code></pre>
+<p>参数： 无</p>
+<p>返回值： 无</p>
+<p>如果需要使用SOFT_TIMER，则系统初始化时，应该调用下面这个函数接口：</p>
+<pre><code>void rt_system_timer_thread_init(void);</code></pre>
+<p>参数： 无</p>
+<p>返回值： 无</p>
+<h3 id="创建定时器"><a href="#TOC">创建定时器</a></h3>
+<p>当动态创建一个定时器时，可使用下面的函数接口：</p>
+<pre><code>rt_timer_t rt_timer_create(const char* name,
+    void (*timeout)(void* parameter), void* parameter,
+    rt_tick_t time, rt_uint8_t flag);</code></pre>
+<p>调用该函数接口后，内核首先从动态内存堆中分配一个定时器控制块，然后对该控制块进行基本的初始化。</p>
+<p>参数：</p>
+<p>name – 定时器的名称； timeout – 定时器超时函数指针（当定时器超时时，系统会调用这个函数）； parameter – 定时器超时函数的入口参数（当定时器超时时，调用超时回调函数会把这个参数做为入口参数传递给超时函数）； time – 定时器的超时时间，单位是系统节拍； flag – 定时器创建时的参数，支持的值包括（可以用“或”关系取多个值）：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_TIMER_FLAG_ONE_SHOT      0x0     </span><span class="co">/* 单次定时         */</span>
+<span class="ot">#define RT_TIMER_FLAG_PERIODIC      0x2     </span><span class="co">/* 周期定时         */</span>
+<span class="ot">#define RT_TIMER_FLAG_HARD_TIMER    0x0     </span><span class="co">/* 硬件定时器    */</span>
+<span class="ot">#define RT_TIMER_FLAG_SOFT_TIMER    0x4     </span><span class="co">/* 软件定时器    */</span></code></pre>
+<p>当指定的flag为RT_IMER_FLAG_HARD_TIMER时，如果定时器超时，定时器的回调函数将在时钟中断的服务例程上下文中被调用；当指定的flag为RT_TIMER_FLAG_SOFT_TIMER时，如果定时器超时，定时器的回调函数将在系统时钟timer线程的上下文中被调用。</p>
+<p>返回值： 如果定时器创建成功，则返回定时器的句柄；如果创建失败，会返回RT_NULL（通常会由于系统内存不够用而返回RT_NULL）。</p>
+<p>创建定时器的例子如例9-1所示：</p>
+<p>例9-1 动态定时器例程</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：动态定时器例程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个例程会创建两个动态定时器对象，一个是单次定时，一个是周期性的定时</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="co">/* 定时器的控制块 */</span>
+<span class="dt">static</span> rt_timer_t timer1;
+<span class="dt">static</span> rt_timer_t timer2;
+
+<span class="co">/* 定时器1超时函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> timeout1(<span class="dt">void</span>* parameter)
+{
+    rt_kprintf(<span class="st">&quot;periodic timer is timeout</span><span class="ch">\n</span><span class="st">&quot;</span>);
+}
+
+<span class="co">/* 定时器2超时函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> timeout2(<span class="dt">void</span>* parameter)
+{
+    rt_kprintf(<span class="st">&quot;one shot timer is timeout</span><span class="ch">\n</span><span class="st">&quot;</span>);
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    <span class="co">/* 创建定时器1 */</span>
+    timer1 = rt_timer_create(<span class="st">&quot;timer1&quot;</span>,  <span class="co">/* 定时器名字是 timer1 */</span>
+        timeout1, <span class="co">/* 超时时回调的处理函数 */</span>
+        RT_NULL, <span class="co">/* 超时函数的入口参数 */</span>
+        <span class="dv">10</span>, <span class="co">/* 定时长度，以OS Tick为单位，即10个OS Tick */</span>
+        RT_TIMER_FLAG_PERIODIC); <span class="co">/* 周期性定时器 */</span>
+    <span class="co">/* 启动定时器 */</span>
+    <span class="kw">if</span> (timer1 != RT_NULL)
+        rt_timer_start(timer1);
+
+    <span class="co">/* 创建定时器2 */</span>
+    timer2 = rt_timer_create(<span class="st">&quot;timer2&quot;</span>,   <span class="co">/* 定时器名字是 timer2 */</span>
+        timeout2, <span class="co">/* 超时时回调的处理函数 */</span>
+        RT_NULL, <span class="co">/* 超时函数的入口参数 */</span>
+        <span class="dv">30</span>, <span class="co">/* 定时长度为30个OS Tick */</span>
+        RT_TIMER_FLAG_ONE_SHOT); <span class="co">/* 单次定时器 */</span>
+
+    <span class="co">/* 启动定时器 */</span>
+    <span class="kw">if</span> (timer2 != RT_NULL)
+        rt_timer_start(timer2);
+    
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="删除定时器"><a href="#TOC">删除定时器</a></h3>
+<p>系统不再使用特定定时器时，可使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_timer_delete(rt_timer_t timer);</code></pre>
+<p>调用这个函数接口后，系统会把这个定时器从rt_timer_list链表中删除，然后释放相应的定时器控制块占有的内存。</p>
+<p>参数： timer 定时器句柄，指向要删除的定时器。 返回值： 返回RT_EOK （如果参数timer句柄是一个RT_NULL，将会导致一个ASSERT断言）</p>
+<p>删除定时器的例子请参考例9-1中删除定时器的代码。</p>
+<h3 id="初始化定时器"><a href="#TOC">初始化定时器</a></h3>
+<p>当选择静态创建定时器时，可利用rt_timer_init接口来初始化该定时器，函数接口如下：</p>
+<pre><code>void rt_timer_init(rt_timer_t timer,
+    const char* name,   void (*timeout)(void* parameter), void* parameter,
+    rt_tick_t time, rt_uint8_t flag);</code></pre>
+<p>使用该函数接口时会初始化相应的定时器控制块，初始化相应的定时器名称，定时器超时函数等等。</p>
+<p>参数： timer – 定时器句柄，指向要初始化的定时器控制块； name – 定时器的名称； timeout – 定时器超时函数指针（当定时器超时时，系统会调用这个函数）； parameter – 定时器超时函数的入口参数（当定时器超时时，调用超时回调函数会把这个参数做为入口参数传递给超时函数）； time – 定时器的超时时间，单位是系统节拍； flag – 定时器创建时的参数，支持的值包括（可以用“或”关系取多个值）：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_TIMER_FLAG_ONE_SHOT      0x0     </span><span class="co">/* 单次定时         */</span>
+<span class="ot">#define RT_TIMER_FLAG_PERIODIC      0x2     </span><span class="co">/* 周期定时         */</span>
+<span class="ot">#define RT_TIMER_FLAG_HARD_TIMER    0x0     </span><span class="co">/* 硬件定时器    */</span>
+<span class="ot">#define RT_TIMER_FLAG_SOFT_TIMER    0x4     </span><span class="co">/* 软件定时器    */</span></code></pre>
+<p>当指定的flag为RT_IMER_FLAG_HARD_TIMER时，如果定时器超时，定时器的回调函数将在时钟中断的服务例程上下文中被调用；当指定的flag为RT_TIMER_FLAG_SOFT_TIMER时，如果定时器超时，定时器的回调函数将在系统时钟timer线程的上下文中被调用。</p>
+<p>返回值： 无</p>
+<p>初始化定时器的例子如例9-2代码所示：</p>
+<p>例9-2 静态定时器例程</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：静态定时器例程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个程序会初始化2个静态定时器，一个是单次定时，一个是周期性的定时</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="co">/* 定时器的控制块 */</span>
+<span class="dt">static</span> <span class="kw">struct</span> rt_timer timer1;
+<span class="dt">static</span> <span class="kw">struct</span> rt_timer timer2;
+
+<span class="co">/* 定时器1超时函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> timeout1(<span class="dt">void</span>* parameter)
+{
+    rt_kprintf(<span class="st">&quot;periodic timer is timeout</span><span class="ch">\n</span><span class="st">&quot;</span>);
+}
+
+<span class="co">/* 定时器2超时函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> timeout2(<span class="dt">void</span>* parameter)
+{
+    rt_kprintf(<span class="st">&quot;one shot timer is timeout</span><span class="ch">\n</span><span class="st">&quot;</span>);
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    <span class="co">/* 初始化定时器 */</span>
+    rt_timer_init(&amp;timer1, <span class="st">&quot;timer1&quot;</span>,  <span class="co">/* 定时器名字是 timer1 */</span>
+        timeout1, <span class="co">/* 超时时回调的处理函数 */</span>
+        RT_NULL, <span class="co">/* 超时函数的入口参数 */</span>
+        <span class="dv">10</span>, <span class="co">/* 定时长度，以OS Tick为单位，即10个OS Tick */</span>
+        RT_TIMER_FLAG_PERIODIC); <span class="co">/* 周期性定时器 */</span>
+    rt_timer_init(&amp;timer2, <span class="st">&quot;timer2&quot;</span>,   <span class="co">/* 定时器名字是 timer2 */</span>
+        timeout2, <span class="co">/* 超时时回调的处理函数 */</span>
+        RT_NULL, <span class="co">/* 超时函数的入口参数 */</span>
+        <span class="dv">30</span>, <span class="co">/* 定时长度为30个OS Tick */</span>
+        RT_TIMER_FLAG_ONE_SHOT); <span class="co">/* 单次定时器 */</span>
+
+    <span class="co">/* 启动定时器 */</span>
+    rt_timer_start(&amp;timer1);
+    rt_timer_start(&amp;timer2);
+    
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="脱离定时器"><a href="#TOC">脱离定时器</a></h3>
+<p>当一个静态定时器不需要再使用时，可以使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_timer_detach(rt_timer_t timer);</code></pre>
+<p>脱离定时器时，系统会把定时器对象从系统容器的定时器链表中删除，但是定时器对象所占有的内存不会被释放。</p>
+<p>参数： timer – 定时器句柄，指向要脱离的定时器控制块。</p>
+<p>返回值： 返回RT_EOK。</p>
+<p>脱离定时器的例子可参考9-2例程代码中的脱离部分。</p>
+<h3 id="启动定时器"><a href="#TOC">启动定时器</a></h3>
+<p>当定时器被创建或者初始化以后，并不会被立即启动，必须在调用启动定时器函数接口后，才开始工作，启动定时器函数接口如下：</p>
+<pre><code>rt_err_t rt_timer_start(rt_timer_t timer);</code></pre>
+<p>调用定时器启动函数接口后，定时器的状态将更改为激活状态（RT_TIMER_FLAG_ACTIVATED），并按照超时顺序插入到rt_timer_list队列链表中。</p>
+<p>参数： timer – 定时器句柄，指向要启动的定时器控制块。 返回值： 如果timer已经处于激活状态，则返回-RT_ERROR；否则返回RT_EOK。</p>
+<p>启动定时器的例子请参考9-1例程代码中的定时器代码。</p>
+<h3 id="停止定时器"><a href="#TOC">停止定时器</a></h3>
+<p>启动定时器以后，若想使它停止，可以使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_timer_stop(rt_timer_t timer);</code></pre>
+<p>调用定时器停止函数接口后，定时器状态将更改为停止状态，并从rt_timer_list链表中脱离出来不参与定时器超时检查。当一个（周期性）定时器超时时，也可以调用这个函数接口停止这个（周期性）定时器本身。</p>
+<p>参数： timer – 定时器句柄，指向要启动的定时器控制块。 返回值： 如果timer已经处于停止状态，返回-RT_ERROR；否则返回RT_EOK。</p>
+<h3 id="控制定时器"><a href="#TOC">控制定时器</a></h3>
+<p>除了上述提供的一些编程接口，RT_thread也额外提供了定时器控制函数接口，以获取或设置更多定时器的信息。控制定时器函数接口如下：</p>
+<pre><code>rt_err_t rt_timer_control(rt_timer_t timer, rt_uint8_t cmd, void* arg);</code></pre>
+<p>控制定时器函数接口可根据命令类型参数，来查看或改变定时器的设置。</p>
+<p>参数： timer – 定时器句柄，指向要启动的定时器控制块； cmd – 用于控制定时器的命令，当前支持四个命令接口，分别是设置定时时间，查看定时时间，设置单次触发，设置周期触发：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_TIMER_CTRL_SET_TIME      0x0     </span><span class="co">/* 设置定时器超时时间        */</span>
+<span class="ot">#define RT_TIMER_CTRL_GET_TIME      0x1     </span><span class="co">/* 获得定时器超时时间        */</span>
+<span class="ot">#define RT_TIMER_CTRL_SET_ONESHOT   0x2     </span><span class="co">/* 设置定时器为单一超时型  */</span>
+<span class="ot">#define RT_TIMER_CTRL_SET_PERIODIC  0x3     </span><span class="co">/* 设置定时器为周期型定时器 */</span></code></pre>
+<p>arg – 相对应的控制命令参数。 返回值： RT_EOK</p>
+<p>使用定时器控制接口的代码如例9-3所示:</p>
+<p>例9-3 定时器控制接口示例</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：定时器控制接口示例</span>
+<span class="co"> *</span>
+<span class="co"> * 这个例程会创建1个动态周期型定时器对象，然后控制它进行更改定时器的时间长度。</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="co">/* 定时器的控制块 */</span>
+<span class="dt">static</span> rt_timer_t timer1;
+<span class="dt">static</span> rt_uint8_t count;
+
+<span class="co">/* 定时器超时函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> timeout1(<span class="dt">void</span>* parameter)
+{
+    rt_kprintf(<span class="st">&quot;periodic timer is timeout</span><span class="ch">\n</span><span class="st">&quot;</span>);
+
+    count ++;
+    <span class="co">/* 当超过8次时，更改定时器的超时长度 */</span>
+    <span class="kw">if</span> (count &gt;= <span class="dv">8</span>)
+    {
+        <span class="dt">int</span> timeout_value = <span class="dv">50</span>;
+        <span class="co">/* 控制定时器更改定时器超时时间长度 */</span>
+        rt_timer_control(timer1, RT_TIMER_CTRL_SET_TIME, (<span class="dt">void</span>*)&amp;timeout_value);
+        count = <span class="dv">0</span>;
+    }
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    <span class="co">/* 创建定时器1 */</span>
+    timer1 = rt_timer_create(<span class="st">&quot;timer1&quot;</span>,  <span class="co">/* 定时器名字是 timer1 */</span>
+        timeout1, <span class="co">/* 超时时回调的处理函数 */</span>
+        RT_NULL, <span class="co">/* 超时函数的入口参数 */</span>
+        <span class="dv">10</span>, <span class="co">/* 定时长度，以OS Tick为单位，即10个OS Tick */</span>
+        RT_TIMER_FLAG_PERIODIC); <span class="co">/* 周期性定时器 */</span>
+    <span class="co">/* 启动定时器 */</span>
+    <span class="kw">if</span> (timer1 != RT_NULL)
+        rt_timer_start(timer1);
+        
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h2 id="合理使用定时器"><a href="#TOC">合理使用定时器</a></h2>
+<h3 id="定时器执行上下文"><a href="#TOC">定时器执行上下文</a></h3>
+<p>RT-Thread的定时器与其他实时操作系统的定时器实现稍微有些不同（特别是RT-Thread早期版本的实现中），因为RT-Thread里定时器默认的方式是HARD_TIMER定时器，即定时器超时后，超时函数是在系统时钟中断的上下文环境中运行的。在中断上下文中的执行方式决定了定时器的超时函数不应该调用任何会让当前上下文挂起的系统函数；也不能够执行非常长的时间，否则会导致其他中断的响应时间加长或抢占了其他线程执行的时间。</p>
+<p>另外，回顾第五章，你是否有留意到每个线程控制块中都包含了一个定时器：thread_timer。这个thread_timer也是一个HARD_TIMER定时器。它被用于当线程需要执行一些带时间特性的系统调用中，例如带超时特性的试图持有信号量，接收事件、接收消息等，而当相应的条件不能够被满足时线程就将被挂起，在线程挂起前，这个内置的定时器将会被激活并启动（超时函数设定为rt_thread_timeout）。当线程定时器超时时，这个线程依然还未被唤醒， rt_thread_timeout函数仍将继续被调用，接着设置线程的error代码为-RT_ETIMEOUT，接着唤醒这个线程。所以从某个意义上说，在线程中执行rt_thread_sleep/rt_thread_delay函数，也可以算是另一种意义的超时。</p>
+<p>回到上一段对HARD_TIMER定时器描述中来，可以看到HARD_TIMER定时器超时函数工作于中断的上下文环境中，这种在中断中执行的方式显得非常麻烦，因此开发人员需要时刻关心超时函数究竟执行了哪些操作；相反如果定时器超时函数是在线程中执行，显然会好很多，如果有更高优先级的线程就绪，依然可以抢占这个定时器执行线程从而获得优先处理权。如果是想要使用rt_thread_sleep/rt_thread_delay的方式实现定时器超时操作，那么可以使用如图9-4的方式：</p>
+<p>图9-4 线程定时器</p>
+<p>在图9-4的例子中，timer_thread是一个线程入口函数，在线程中执行rt_thread_delay(n)后，课以实现n个OS tick的定时，当执行rt_thread_delay时，线程的内置定时器将会被激活并启动；当线程定时器超时时，这个线程将被唤醒，并接着rt_thread_delay运行后续的代码。</p>
+<p>上述描述的都是HARD_TIMER的特性。另外，在RT-Thread中，我们也可以在创建定时器时，把定时器指定成SOFT_TIMER的方式，这样可以使得定时器超时函数完全运行在timer系统线程上下文环境中。如果系统在初始化时需要使用SOFT_TIMER特性，需要在系统配置中打开RT_USING_TIMER_SOFT宏定义，那么调用rt_system_timer_thread_init函数就可以启动timer系统线程。这里值得注意的是，SOFT_TIMER定时器的精度由RT_TIMER_TICK_PER_SECOND定义的值所决定（每秒触发的timer tick次数是多少），这个值必须是OS tick的整数倍。</p>
+<h3 id="os-tick与定时器精度"><a href="#TOC">OS tick与定时器精度</a></h3>
+<p>系统中HARD_TIMER定时器的最小精度是由系统时钟节拍所决定的（1 OS tick = 1/RT_TICK _PER_SECOND秒，RT_TICK_PER_SECOND值在rtconfig.h文件中定义），定时器设定的时间必须是OS tick的整数倍。当需要实现更短时间长度的系统定时时，例如OS tick是10ms，而程序需要实现1ms的定时或延时，这种时候操作系统定时器将不能够满足要求，只能通过读取系统某个硬件定时器的计数器或直接使用硬件定时器的方式。</p>
+<p>在Cortex-M3中，SysTick已经被RT-Thread用于作为OS tick使用，它被配置成1/RT_TICK_ PER_SECOND秒后触发一次中断的方式，中断处理函数使用Cortex-M3默认的SysTick_Handler名字。在Cortex-M3的CMSIS（Cortex Microcontroller Software Interface Standard）规范中规定了SystemCoreClock代表芯片的主频，所以基于SysTick以及SystemCoreClock，我们能够使用SysTick获得一个精确的延时函数，如例9-5，Cortex-M3上的基于SysTick的精确延时（需要系统在使能SysTick后使用）：</p>
+<p>例9-5 高精度延时</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#include &lt;core_cm3.h&gt;</span>
+<span class="dt">void</span> rt_hw_us_delay(<span class="dt">int</span> us)
+{
+    rt_uint32_t delta;
+
+        <span class="co">/* 获得延时经过的tick数 */</span>
+    us = us * (SysTick-&gt;LOAD/(<span class="dv">1000000</span>/RT_TICK_PER_SECOND));
+
+        <span class="co">/* 获得当前时间 */</span>
+    delta = SysTick-&gt;VAL;
+
+        <span class="co">/* 循环获得当前时间，直到达到指定的时间后退出循环 */</span>
+    <span class="kw">while</span> (delta - SysTick-&gt;VAL&lt; us);
+}</code></pre>
+<p>其中入口参数us指示出需要演示的微秒数目，这个函数只能支持低于1 OS tick的延时，否则SysTick会出现溢出而不能够获得指定的延时时间。</p>
+<h1 id="任务间同步及通信"><a href="#TOC">任务间同步及通信</a></h1>
+<p>在多任务实时系统中，一项工作的完成往往可以通过多个任务协调的方式共同来完成，例如一个任务从传感器中接收数据并且将数据写到共享内存中，同时另一个任务周期性的从共享内存中读取数据并发送去显示（如图6-1）。</p>
+<p>图6-1 两个线程间的数据传递 如果对共享内存的访问不是排他性的，那么各个线程间可能同时访问它。这将引起数据一致性的问题，例如，在显示线程试图显示数据之前，传感器线程还未完成数据的写入，那么显示将包含不同时间采样的数据，造成显示数据的迷惑。 将传感器数据写入到共享内存的代码是接收线程的关键代码段；将传感器数据从共享内存中读出的代码是显示线程的关键代码段；这两段代码都会访问共享内存。正常的操作序列应该是在一个线程对共享内存块操作完成后，才允许另一个线程去操作。对于操作/访问同一块区域，称之为临界区。任务的同步方式有很多种，其核心思想都是：在访问临界区的时候只允许一个(或一类)任务运行。</p>
+<h2 id="关闭中断"><a href="#TOC">关闭中断</a></h2>
+<p>关闭中断也叫中断锁，是禁止多任务访问临界区最简单的一种方式，即使是在分时操作系统中也是如此。当中断关闭的时候，就意味着当前任务不会被其他事件打断（因为整个系统已经不再响应那些可以触发线程重新调度的外部事件），也就是当前线程不会被抢占，除非这个任务主动放弃了处理器控制权。关闭中断/恢复中断API接口由BSP实现，根据平台的不同其实现方式也大不相同。</p>
+<p>关闭、打开中断接口由两个函数完成：</p>
+<ul>
+<li>关闭中断</li>
+</ul>
+<p>rt_base_t rt_hw_interrupt_disable(void);</p>
+<p>这个函数用于关闭中断并返回关闭中断前的中断状态。</p>
+<p>参数：无 返回值：返回调用这个函数前的中断状态。</p>
+<ul>
+<li>恢复中断</li>
+</ul>
+<p>void rt_hw_interrupt_enable(rt_base_t level);</p>
+<p>这个函数“使能”中断，它采用恢复调用rt_hw_interrupt_disable()函数前的中断状态，进行“使能”中断状态，如果调用rt_hw_interrupt_disable() 函数前是关中断状态，那么调用此函数后依然是关中断状态。level参数是上一次调用rt_hw_interrupt_ disable()时的返回值。</p>
+<p>参数： level - 前一次rt_hw_interrupt_disable返回的中断状态。 返回值：无</p>
+<p>使用开关中断进行线程间同步的例子代码如例6-1代码所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/* 代码清单：关闭中断进行全局变量的访问 */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="co">/* 同时访问的全局变量 */</span>
+<span class="dt">static</span> rt_uint32_t cnt;
+<span class="dt">void</span> thread_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint32_t no;
+    rt_uint32_t level;
+
+    no = (rt_uint32_t) parameter;
+    <span class="kw">while</span>(<span class="dv">1</span>)
+    {
+        <span class="co">/* 关闭中断 */</span>
+        level = rt_hw_interrupt_disable();
+        cnt += no;
+        <span class="co">/* 恢复中断 */</span>
+        rt_hw_interrupt_enable(level);
+
+        rt_kprintf(<span class="st">&quot;thread[%d]&#39;s counter is %d</span><span class="ch">\n</span><span class="st">&quot;</span>, no, cnt);
+        rt_thread_delay(no);
+    }
+}
+
+<span class="co">/* 用户应用程序入口 */</span>
+<span class="dt">void</span> rt_application_init()
+{
+    rt_thread_t thread;
+
+    <span class="co">/* 创建t1线程 */</span>
+    thread = rt_thread_create(<span class="st">&quot;t1&quot;</span>, thread_entry, (<span class="dt">void</span>*)<span class="dv">10</span>,
+        <span class="dv">512</span>, <span class="dv">10</span>, <span class="dv">5</span>);
+    <span class="kw">if</span> (thread != RT_NULL) rt_thread_startup(thread);
+
+    <span class="co">/* 创建t2线程 */</span>
+    thread = rt_thread_create(<span class="st">&quot;t2&quot;</span>, thread_entry, (<span class="dt">void</span>*)<span class="dv">20</span>,
+        <span class="dv">512</span>, <span class="dv">20</span>, <span class="dv">5</span>);
+    <span class="kw">if</span> (thread != RT_NULL) rt_thread_startup(thread);
+}</code></pre>
+<p>警告: 由于关闭中断会导致整个系统不能响应外部中断，所以在使用关闭中断做为互斥访问临界区的手段时，首先必须需要保证关闭中断的时间非常短，例如数条机器指令。</p>
+<h3 id="使用场合"><a href="#TOC">使用场合</a></h3>
+<p>使用中断锁来操作系统的方法可以应用于任何场合，且其他几类同步方式都是依赖于中断锁而实现的，可以说中断锁是最强大的和最高效的同步方法。只是使用中断锁最主要的问题在于，在中断关闭期间系统将不再响应任何中断，也就不能响应外部的事件。所以中断锁对系统的实时性影响非常巨大，当使用不当的时候会导致系统完全无实时性可言（可能导致系统完全偏离要求的时间需求）；而使用得当，则会变成一种快速、高效的同步方式。 例如，为了保证一行代码（例如赋值）的互斥运行，最快速的方法是使用中断锁而不是信号量或互斥量：</p>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="co">/* 关闭中断*/</span>
+    level = rt_hw_interrupt_disable();
+    a = a + value;
+    <span class="co">/* 恢复中断*/</span>
+    rt_hw_interrupt_enable(level);</code></pre>
+<p>在使用中断锁时，需要确保关闭中断的时间非常短，例如上面代码中的a = a + value; 也可换成另外一种方式，例如使用信号量：</p>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="co">/* 获得信号量锁*/</span>
+    rt_sem_take(sem_lock, RT_WAITING_FOREVER);
+    a = a + value;
+    <span class="co">/* 释放信号量锁*/</span>
+    rt_sem_release(sem_lock);</code></pre>
+<p>这段代码在rt_sem_take 、rt_sem_release 的实现中，已经存在使用中断锁保护信号量内部变量的行为，所以对于简单如a = a + value;的操作，使用中断锁将更为简洁快速。</p>
+<h2 id="调度器锁"><a href="#TOC">调度器锁</a></h2>
+<p>同中断锁一样把调度器锁住也能让当前运行的任务不被换出，直到调度器解锁。但和中断锁有一点不相同的是，对调度器上锁，系统依然能响应外部中断，中断服务例程依然能进行相应的响应。所以在使用调度器上锁的方式进行任务同步时，需要考虑好任务访问的临界资源是否会被中断服务例程所修改，如果可能会被修改，那么将不适合采用此种方式进行同步。RT-Thread提供的调度锁操作API为：</p>
+<pre><code>void rt_enter_critical(void); /* 进入临界区*/</code></pre>
+<p>参数： 无 返回值：无</p>
+<p>调用这个函数后，调度器将被上锁。在系统锁住调度器的期间，系统依然响应中断，如果中断唤醒了的更高优先级线程，调度器并不会立刻执行它，直到调用解锁调度器函数才尝试进行下一次调度。</p>
+<pre><code>void rt_exit_critical(void); /* 退出临界区*/</code></pre>
+<p>参数：无 返回值：无</p>
+<p>当系统退出临界区的时候，系统会计算当前是否有更高优先级的线程就绪，如果有比当前线程更高优先级的线程就绪，将切换到这个高优先级线程中执行；如果无更高优先级线程就绪，将继续执行当前任务。</p>
+<p>注： rt_enter_critical/rt_exit_critical 可以多次嵌套调用，但每调用一次rt_enter_critical就必须相对应地调用一次rt_exit_critical退出操作，嵌套的最大深度是65535。</p>
+<h3 id="使用场合-1"><a href="#TOC">使用场合</a></h3>
+<p>调度器锁能够方便地使用于一些线程与线程间同步的场合，由于轻型，它不会对系统中断响应造成负担；但它的缺陷也很明显，就是它不能被用于中断与线程间的同步或通知，并且如果执行调度器锁的时间过长，会对系统的实时性造成影响（因为使用了调度器锁后，系统将不再具备优先级的关系，直到它脱离了调度器锁的状态）。</p>
+<h2 id="信号量"><a href="#TOC">信号量</a></h2>
+<p>信号量是一种轻型的用于解决线程间同步问题的内核对象，线程可以获取或释放它，从而达到同步或互斥的目的。信号量就像一把钥匙，把一段临界区给锁住，只允许有钥匙的线程进行访问：线程拿到了钥匙，才允许它进入临界区；而离开后把钥匙传递给排队在后面的等待线程，让后续线程依次进入临界区。</p>
+<p>信号量工作示意图如图6-2所示，每个信号量对象都有一个信号量值和一个线程等待队列，信号量的值对应了信号量对象的实例数目、资源数目，假如信号量值为5，则表示共有5个信号量实例（资源）可以被使用，当信号量实例数目为零时，再申请该信号量的线程就会被挂起在该信号量的等待队列上，等待可用的信号量实例（资源）。</p>
+<h3 id="信号量控制块"><a href="#TOC">信号量控制块</a></h3>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="kw">struct</span> rt_semaphore
+    {
+        <span class="kw">struct</span> rt_ipc_object parent; <span class="co">/* 继承自ipc_object类 */</span>
+        rt_uint16_t value;           <span class="co">/* 信号量的值             */</span>
+    };
+    <span class="co">/* rt_sem_t是指向semaphore结构体的指针类型 */</span>
+    <span class="kw">typedef</span> <span class="kw">struct</span> rt_semaphore* rt_sem_t;</code></pre>
+<p>rt_semaphore对象从rt_ipc_object中派生，由IPC容器所管理。信号量的最大值是65535。</p>
+<h3 id="信号量相关接口"><a href="#TOC">信号量相关接口</a></h3>
+<p>创建信号量 当创建一个信号量时，内核首先创建一个信号量控制块，然后对该控制块进行基本的初始化工作，创建信号量使用下面的函数接口：</p>
+<pre><code>rt_sem_t rt_sem_create (const char* name, rt_uint32_t value, rt_uint8_t flag);</code></pre>
+<p>当调用这个函数时，系统将先分配一个semaphore对象，并初始化这个对象，然后初始化IPC对象以及与semaphore相关的部分。在创建信号量指定的参数中，信号量标志参数决定了当信号量不可用时，多个线程等待的排队方式。当选择FIFO方式时，那么等待线程队列将按照先进先出的方式排队，先进入的线程将先获得等待的信号量；当选择PRIO（优先级等待）方式时，等待线程队列将按照优先级进行排队，优先级高的等待线程将先获得等待的信号量。</p>
+<p>参数： name – 信号量名称； value – 信号量初始值； flag – 信号量标志，取值可以使用如下类型： #define RT_IPC_FLAG_FIFO 0x00 /* IPC参数采用FIFO方式<em>/ #define RT_IPC_FLAG_PRIO 0x01 /</em> IPC参数采用优先级方式*/</p>
+<p>返回值： 创建成功返回创建的信号量控制块指针；否则返回RT_NULL。</p>
+<p>创建信号量的例程如例6-2所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c">     <span class="co">/*</span>
+<span class="co">     * 程序清单：动态信号量</span>
+<span class="co">     *</span>
+<span class="co">     * 这个例子中将创建一个动态信号量(初始值为0)及一个动态线程，在这个动态线程中</span>
+<span class="co">     * 将试图采用超时方式去持有信号量，应该超时返回。然后这个线程释放一次信号量，</span>
+<span class="co">     * 并在后面继续采用永久等待方式去持有信号量， 成功获得信号量后返回。</span>
+<span class="co">     */</span>
+    <span class="ot">#include &lt;rtthread.h&gt;</span>
+    <span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+    <span class="co">/* 指向线程控制块的指针 */</span>
+    <span class="dt">static</span> rt_thread_t tid = RT_NULL;
+    <span class="co">/* 指向信号量的指针 */</span>
+    <span class="dt">static</span> rt_sem_t sem = RT_NULL;
+    <span class="co">/* 线程入口 */</span>
+    <span class="dt">static</span> <span class="dt">void</span> thread_entry(<span class="dt">void</span>* parameter)
+    {
+        rt_err_t result;
+        rt_tick_t tick;
+
+        <span class="co">/* 获得当前的OS Tick */</span>
+        tick = rt_tick_get();
+
+        <span class="co">/* 试图持有一个信号量，如果10个OS Tick依然没拿到，则超时返回 */</span>
+        result = rt_sem_take(sem, <span class="dv">10</span>);
+        <span class="kw">if</span> (result == -RT_ETIMEOUT)
+        {
+            <span class="co">/* 判断是否刚好过去10个OS Tick */</span>
+            <span class="kw">if</span> (rt_tick_get() - tick != <span class="dv">10</span>)
+            {
+                <span class="co">/* 如果失败，则测试失败 */</span>
+                tc_done(TC_STAT_FAILED);
+                rt_sem_delete(sem);
+                <span class="kw">return</span>;
+            }
+            rt_kprintf(<span class="st">&quot;take semaphore timeout</span><span class="ch">\n</span><span class="st">&quot;</span>);
+        }
+        <span class="kw">else</span>
+        {
+            <span class="co">/* 因为并没释放信号量，应该是超时返回，否则测试失败 */</span>
+            tc_done(TC_STAT_FAILED);
+            rt_sem_delete(sem);
+            <span class="kw">return</span>;
+        }
+
+        <span class="co">/* 释放一次信号量 */</span>
+        rt_sem_release(sem);
+
+        <span class="co">/* 继续持有信号量，并永远等待直到持有到信号量 */</span>
+        result = rt_sem_take(sem, RT_WAITING_FOREVER);
+        <span class="kw">if</span> (result != RT_EOK)
+        {
+            <span class="co">/* 返回不正确，测试失败 */</span>
+            tc_done(TC_STAT_FAILED);
+            rt_sem_delete(sem);
+            <span class="kw">return</span>;
+        }
+
+        <span class="co">/* 测试成功 */</span>
+        tc_done(TC_STAT_PASSED);
+        <span class="co">/* 删除信号量 */</span>
+        rt_sem_delete(sem);
+    }
+
+    <span class="dt">int</span> rt_application_init()
+    {
+        <span class="co">/* 创建一个信号量，初始值是0 */</span>
+        sem = rt_sem_create(<span class="st">&quot;sem&quot;</span>, <span class="dv">0</span>, RT_IPC_FLAG_FIFO);
+        <span class="kw">if</span> (sem == RT_NULL)
+            <span class="kw">return</span> -<span class="dv">1</span>;
+
+        <span class="co">/* 创建线程 */</span>
+        tid = rt_thread_create(<span class="st">&quot;thread&quot;</span>,
+            thread_entry, RT_NULL, <span class="co">/* 线程入口是thread_entry, 参数RT_NULL */</span>
+            THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+        <span class="kw">if</span> (tid != RT_NULL)
+            rt_thread_startup(tid);
+        <span class="kw">else</span>
+            <span class="kw">return</span> -<span class="dv">1</span>;
+
+        <span class="kw">return</span> <span class="dv">0</span>;
+    }</code></pre>
+<h4 id="删除信号量"><a href="#TOC">删除信号量</a></h4>
+<p>系统不再使用信号量时，可通过删除信号量以释放系统资源。删除信号量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_sem_delete (rt_sem_t sem);</code></pre>
+<p>调用这个函数时，系统将删除这个信号量。如果删除该信号量时，有线程正在等待该信号量，那么删除操作会先唤醒等待在该信号量上的线程（等待线程的返回值是-RT_ERROR），然后再释放信号量的内存资源。</p>
+<p>参数： sem – rt_sem_create创建处理的信号量对象。 返回值：RT_EOK</p>
+<h4 id="初始化信号量"><a href="#TOC">初始化信号量</a></h4>
+<p>对于静态信号量对象，它的内存空间在编译时期就被编译器分配出来，放在数据段或ZI段上，此时使用信号量就不再需要使用rt_sem_create接口来创建它，而只需在使用前对它进行初始化即可。初始化信号量对象可使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_sem_init (rt_sem_t sem, const char* name, rt_uint32_t value, rt_uint8_t flag);</code></pre>
+<p>当调用这个函数时，系统将对这个semaphore对象进行初始化，然后初始化IPC对象以及与semaphore相关的部分。在初始化信号量指定的参数中，信号量标志参数决定了当信号量不可用时，多个线程等待的方式。当选择FIFO方式时，那么等待线程队列将按照先进先出的方式排队，先进入的线程将先获得等待的信号量；当选择PRIO（优先级等待）方式时，等待线程队列将按照优先级进行排队，优先级高的等待线程将先获得等待的信号量。</p>
+<p>参数： sem – 信号量对象的句柄； name – 信号量名称； value – 信号量初始值； flag – 信号量标志。 #define RT_IPC_FLAG_FIFO 0x00 /* IPC参数采用FIFO方式<em>/ #define RT_IPC_FLAG_PRIO 0x01 /</em> IPC参数采用优先级方式*/</p>
+<p>返回值： RT_EOK</p>
+<p>初始化信号量的例程如例6-3所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c">     <span class="co">/*</span>
+<span class="co">     * 程序清单：静态信号量</span>
+<span class="co">     *</span>
+<span class="co">     * 这个例子中将创建一个静态信号量（初始值为0 ）及一个静态线程，在这个静态线程中</span>
+<span class="co">     * 将试图采用超时方式去获取信号量，应该超时返回。然后这个线程释放一次信号量，并</span>
+<span class="co">     * 在后面继续采用永久等待方式去获取信号量， 成功获得信号量后返回。</span>
+<span class="co">     */</span>
+    <span class="ot">#include &lt;rtthread.h&gt;</span>
+    <span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+    <span class="co">/* 线程控制块及栈 */</span>
+    <span class="dt">static</span> <span class="kw">struct</span> rt_thread thread;
+    <span class="dt">static</span> rt_uint8_t thread_stack[THREAD_STACK_SIZE];
+    <span class="co">/* 信号量控制块 */</span>
+    <span class="dt">static</span> <span class="kw">struct</span> rt_semaphore sem;
+
+    <span class="co">/* 线程入口 */</span>
+    <span class="dt">static</span> <span class="dt">void</span> thread_entry(<span class="dt">void</span>* parameter)
+    {
+        rt_err_t result;
+        rt_tick_t tick;
+
+        <span class="co">/* 获得当前的OS Tick */</span>
+        tick = rt_tick_get();
+
+        <span class="co">/* 试图持有信号量，最大等待10个OS Tick后返回 */</span>
+        result = rt_sem_take(&amp;sem, <span class="dv">10</span>);
+        <span class="kw">if</span> (result == -RT_ETIMEOUT)
+        {
+            <span class="co">/* 超时后判断是否刚好是10个OS Tick */</span>
+            <span class="kw">if</span> (rt_tick_get() - tick != <span class="dv">10</span>)
+            {
+                tc_done(TC_STAT_FAILED);
+                rt_sem_detach(&amp;sem);
+                <span class="kw">return</span>;
+            }
+            rt_kprintf(<span class="st">&quot;take semaphore timeout</span><span class="ch">\n</span><span class="st">&quot;</span>);
+        }
+        <span class="kw">else</span>
+        {
+            <span class="co">/* 因为没有其他地方是否信号量，所以不应该成功持有信号量，否则测试失败 */</span>
+            tc_done(TC_STAT_FAILED);
+            rt_sem_detach(&amp;sem);
+            <span class="kw">return</span>;
+        }
+
+        <span class="co">/* 释放一次信号量 */</span>
+        rt_sem_release(&amp;sem);
+
+        <span class="co">/* 永久等待方式持有信号量 */</span>
+        result = rt_sem_take(&amp;sem, RT_WAITING_FOREVER);
+        <span class="kw">if</span> (result != RT_EOK)
+        {
+            <span class="co">/* 不成功则测试失败 */</span>
+            tc_done(TC_STAT_FAILED);
+            rt_sem_detach(&amp;sem);
+            <span class="kw">return</span>;
+        }
+
+        <span class="co">/* 测试通过 */</span>
+        tc_done(TC_STAT_PASSED);
+        <span class="co">/* 脱离信号量对象 */</span>
+        rt_sem_detach(&amp;sem);
+    }
+
+    <span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+    {
+        rt_err_t result;
+
+        <span class="co">/* 初始化信号量，初始值是0 */</span>
+        result = rt_sem_init(&amp;sem, <span class="st">&quot;sem&quot;</span>, <span class="dv">0</span>, RT_IPC_FLAG_FIFO);
+        <span class="kw">if</span> (result != RT_EOK)
+        {
+            tc_stat(TC_STAT_END | TC_STAT_FAILED);
+            <span class="kw">return</span> <span class="dv">0</span>;
+        }
+
+        <span class="co">/* 初始化线程1 */</span>
+        result = rt_thread_init(&amp;thread, <span class="st">&quot;thread&quot;</span>, <span class="co">/* 线程名：thread */</span>
+            thread_entry, RT_NULL, <span class="co">/* 线程的入口是thread_entry，参数是RT_NULL*/</span>
+            &amp;thread_stack[<span class="dv">0</span>], <span class="kw">sizeof</span>(thread_stack), <span class="co">/* 线程栈thread_stack */</span>
+            THREAD_PRIORITY, <span class="dv">10</span>);
+        <span class="kw">if</span> (result == RT_EOK) <span class="co">/* 如果返回正确，启动线程1 */</span>
+            rt_thread_startup(&amp;thread);
+        <span class="kw">else</span>
+            tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+        <span class="kw">return</span> <span class="dv">0</span>;
+    }</code></pre>
+<h4 id="脱离信号量"><a href="#TOC">脱离信号量</a></h4>
+<p>脱离信号量就是让信号量对象从内核对象管理器中移除掉。脱离信号量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_sem_detach (rt_sem_t sem);</code></pre>
+<p>使用该函数后，内核先唤醒所有挂在该信号量等待队列上的线程，然后将该信号量从内核对象管理器中删除。原来挂起在信号量上的等待线程将获得-RT_ERROR 的返回值。</p>
+<p>参数： sem – 信号量对象的句柄。 返回值： RT_EOK。</p>
+<h4 id="获取信号量"><a href="#TOC">获取信号量</a></h4>
+<p>线程通过获取信号量来获得信号量资源实例，当信号量值大于零时，线程将获得信号量，并且相应的信号量值都会减1，获取信号量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_sem_take (rt_sem_t sem, rt_int32_t time);</code></pre>
+<p>在调用这个函数时，如果信号量的值等于零，那么说明当前信号量资源实例不可用，申请该信号量的线程将根据time参数的情况选择直接返回、或挂起等待一段时间、或永久等待，直到其他线程或中断释放该信号量。如果在参数time指定的时间内依然得不到信号量，线程将超时返回，返回值是-RT_ETIMEOUT。</p>
+<p>参数： sem – 信号量对象的句柄； time – 指定的等待时间，单位是操作系统时钟节拍（OS Tick）。 返回值： 成功获得信号量返回RT_EOK；超时依然为获得信号量返回-RT_ETIMEOUT；其他错误返回-RT_ERROR。</p>
+<h4 id="无等待获取信号量"><a href="#TOC">无等待获取信号量</a></h4>
+<p>当用户不想在申请的信号量上挂起线程进行等待时，可以使用无等待方式获取信号量，无等待获取信号量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_sem_trytake(rt_sem_t sem);</code></pre>
+<p>这个函数与rt_sem_take(sem, 0) 的作用相同，即当线程申请的信号量资源实例不可用的时候，它不会等待在该信号量上，而是直接返回-RT_ETIMEOUT。</p>
+<p>参数： sem – 信号量对象的句柄； 返回值： 成功获取信号量返回RT_EOK；否则返回-RT_ETIMEOUT。</p>
+<h4 id="释放信号量"><a href="#TOC">释放信号量</a></h4>
+<p>当线程完成资源的访问后，应尽快释放它持有的信号量，使得其他线程能获得该信号量。释放信号量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_sem_release(rt_sem_t sem);</code></pre>
+<p>当信号量的值等于零时，并且有线程等待这个信号量时，将唤醒等待在该信号量线程队列中的第一个线程，由它获取信号量。否则将把信号量的值加一。</p>
+<p>参数： sem – 信号量对象的句柄； 返回值： RT_EOK</p>
+<pre><code>下面是一个使用信号量的例程，如例6-4所示：</code></pre>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="co">/*</span>
+<span class="co">     * 程序清单：生产者消费者例子</span>
+<span class="co">     *</span>
+<span class="co">     * 这个例子中将创建两个线程用于实现生产者消费者问题</span>
+<span class="co">     */</span>
+    <span class="ot">#include &lt;rtthread.h&gt;</span>
+    <span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+    <span class="co">/* 定义最大5个元素能够被产生 */</span>
+    <span class="ot">#define MAXSEM  5</span>
+
+    <span class="co">/* 用于放置生产的整数数组 */</span>
+    rt_uint32_t array[MAXSEM];
+    <span class="co">/* 指向生产者、消费者在array数组中的读写位置 */</span>
+    <span class="dt">static</span> rt_uint32_t set, get;
+
+    <span class="co">/* 指向线程控制块的指针 */</span>
+    <span class="dt">static</span> rt_thread_t producer_tid = RT_NULL;
+    <span class="dt">static</span> rt_thread_t consumer_tid = RT_NULL;
+
+    <span class="kw">struct</span> rt_semaphore sem_lock;
+    <span class="kw">struct</span> rt_semaphore sem_empty, sem_full;
+
+    <span class="co">/* 生成者线程入口 */</span>
+    <span class="dt">void</span> producer_thread_entry(<span class="dt">void</span>* parameter)
+    {
+        rt_int32_t cnt = <span class="dv">0</span>;
+
+        <span class="co">/* 运行100次 */</span>
+        <span class="kw">while</span>( cnt &lt; <span class="dv">100</span>)
+        {
+            <span class="co">/* 获取一个空位 */</span>
+            rt_sem_take(&amp;sem_empty, RT_WAITING_FOREVER);
+
+            <span class="co">/* 修改array内容，上锁 */</span>
+            rt_sem_take(&amp;sem_lock, RT_WAITING_FOREVER);
+            array[set%MAXSEM] = cnt + <span class="dv">1</span>;
+            rt_kprintf(<span class="st">&quot;the producer generates a number: %d</span><span class="ch">\n</span><span class="st">&quot;</span>, 
+                array[set%MAXSEM]);
+            set++;
+            rt_sem_release(&amp;sem_lock);
+
+            <span class="co">/* 发布一个满位 */</span>
+            rt_sem_release(&amp;sem_full);
+            cnt++;
+
+            <span class="co">/* 暂停一段时间 */</span>
+            rt_thread_delay(<span class="dv">50</span>);
+        }
+
+        rt_kprintf(<span class="st">&quot;the producer exit!</span><span class="ch">\n</span><span class="st">&quot;</span>);
+    }
+
+    <span class="co">/* 消费者线程入口 */</span>
+    <span class="dt">void</span> consumer_thread_entry(<span class="dt">void</span>* parameter)
+    {
+        rt_uint32_t no;
+        rt_uint32_t sum;
+
+        <span class="co">/* 第n个线程，由入口参数传进来 */</span>
+        no = (rt_uint32_t)parameter;
+
+        <span class="kw">while</span>(<span class="dv">1</span>)
+        {
+            <span class="co">/* 获取一个满位 */</span>
+            rt_sem_take(&amp;sem_full, RT_WAITING_FOREVER);
+
+            <span class="co">/* 临界区，上锁进行操作 */</span>
+            rt_sem_take(&amp;sem_lock, RT_WAITING_FOREVER);
+            sum += array[get%MAXSEM];
+            rt_kprintf(<span class="st">&quot;the consumer[%d] get a number:%d</span><span class="ch">\n</span><span class="st">&quot;</span>, no, array[get%MAXSEM]);
+            get++;
+            rt_sem_release(&amp;sem_lock);
+
+            <span class="co">/* 释放一个空位 */</span>
+            rt_sem_release(&amp;sem_empty);
+
+            <span class="co">/* 生产者生产到100个数目，停止，消费者线程相应停止 */</span>
+            <span class="kw">if</span> (get == <span class="dv">100</span>) <span class="kw">break</span>;
+
+            <span class="co">/* 暂停一小会时间 */</span>
+            rt_thread_delay(<span class="dv">10</span>);
+        }
+
+        rt_kprintf(<span class="st">&quot;the consumer[%d] sum is %d </span><span class="ch">\n</span><span class="st"> &quot;</span>, no, sum);
+        rt_kprintf(<span class="st">&quot;the consumer[%d] exit!</span><span class="ch">\n</span><span class="st">&quot;</span>);
+    }
+
+    <span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+    {
+        <span class="co">/* 初始化3个信号量 */</span>
+        rt_sem_init(&amp;sem_lock , <span class="st">&quot;lock&quot;</span>,     <span class="dv">1</span>,      RT_IPC_FLAG_FIFO);
+        rt_sem_init(&amp;sem_empty, <span class="st">&quot;empty&quot;</span>,    MAXSEM, RT_IPC_FLAG_FIFO);
+        rt_sem_init(&amp;sem_full , <span class="st">&quot;full&quot;</span>,     <span class="dv">0</span>,      RT_IPC_FLAG_FIFO);
+
+        <span class="co">/* 创建线程1 */</span>
+        producer_tid = rt_thread_create(<span class="st">&quot;producer&quot;</span>,
+            producer_thread_entry, <span class="co">/* 线程入口是producer_thread_entry */</span>
+            RT_NULL, <span class="co">/* 入口参数是RT_NULL */</span>
+            THREAD_STACK_SIZE, THREAD_PRIORITY - <span class="dv">1</span>, THREAD_TIMESLICE);
+        <span class="kw">if</span> (producer_tid != RT_NULL)
+            rt_thread_startup(producer_tid);
+        <span class="kw">else</span>
+            <span class="kw">return</span> -<span class="dv">1</span>;
+
+        <span class="co">/* 创建线程2 */</span>
+        consumer_tid = rt_thread_create(<span class="st">&quot;consumer&quot;</span>,
+            consumer_thread_entry, <span class="co">/* 线程入口是consumer_thread_entry */</span>
+            RT_NULL, <span class="co">/* 入口参数是RT_NULL */</span>
+            THREAD_STACK_SIZE, THREAD_PRIORITY + <span class="dv">1</span>, THREAD_TIMESLICE);
+        <span class="kw">if</span> (consumer_tid != RT_NULL)
+            rt_thread_startup(consumer_tid);
+        <span class="kw">else</span>
+            <span class="kw">return</span> -<span class="dv">1</span>;
+
+        <span class="kw">return</span> <span class="dv">0</span>;
+    }</code></pre>
+<p>在这个例子中，semaphore是作为一种锁的形式存在，当要访问临界资源：ring buffer时，通过持有semaphore 的形式阻止其他线程进入（如果其他线程也打算进入，将在这里被挂起）。</p>
+<h3 id="使用场合-2"><a href="#TOC">使用场合</a></h3>
+<p>信号量是一种非常灵活的同步方式，可以运用在多种场合中。形成锁，同步，资源计数等关系，也能方便的用于线程与线程，中断与线程的同步中。</p>
+<h4 id="线程同步"><a href="#TOC">线程同步</a></h4>
+<p>线程同步是信号量最简单的一类应用。例如，两个线程用来进行任务间的执行控制转移，信号量的值初始化成具备0个信号量资源实例，而等待线程先直接在这个信号量上进行等待。</p>
+<p>当信号线程完成它处理的工作时，释放这个信号量，以把等待在这个信号量上的线程唤醒，让它执行下一部分工作。这类场合也可以看成把信号量用于工作完成标志：信号线程完成它自己的工作，然后通知等待线程继续下一部分工作。</p>
+<h4 id="锁"><a href="#TOC">锁</a></h4>
+<p>锁，单一的锁常应用于多个线程间对同一临界区的访问。信号量在作为锁来使用时，通常应将信号量资源实例初始化成1，代表系统默认有一个资源可用。当线程需要访问临界资源时，它需要先获得这个锁资源。当这个线程成功获得资源锁时，其他打算访问临界区的线程将被挂起在该信号量上，这是因为其他线程在试图获取这个锁时，这个锁已经被锁上（信号量值是0）。当获得信号量的线程处理完毕，退出临界区时，它将会释放信号量并把锁解开，而挂起在锁上的第一个等待线程将被唤醒从而获得临界区的访问权。</p>
+<p>因为信号量的值始终在1和0之间变动，所以这类锁也叫做二值信号量，如图6-3所示：</p>
+<h4 id="中断与线程的同步"><a href="#TOC">中断与线程的同步</a></h4>
+<p>信号量也能够方便的应用于中断与线程间的同步，例如一个中断触发，中断服务例程需要通知线程进行相应的数据处理。这个时候可以设置信号量的初始值是0，线程在试图持有这个信号量时，由于信号量的初始值是0，线程直接在这个信号量上挂起直到信号量被释放。 当中断触发时，先进行与硬件相关的动作，例如从硬件的I/O口中读取相应的数据，并确认中断以清除中断源，而后释放一个信号量来唤醒相应的线程以做后续的数据处理。例如finsh shell线程的处理方式，如图6-4所示：</p>
+<p>semaphore先初始为0，而后shell线程试图取得信号量，因为信号量值是0，所以它会被挂起。当console设备有数据输入时，将产生中断而进入中断服务例程。在中断服务例程中，它会读取console设备的数据，并把读得的数据放入uart buffer中进行缓冲，而后释放信号量，释放信号量的操作将唤醒shell线程。在中断服务例程运行完毕后，如果系统中没有比shell线程优先级更高的就绪线程存在时，shell线程将持有信号量并运行，从uart buffer缓冲区中获取输入的数据。</p>
+<p>警告： 中断与线程间的互斥不能采用信号量（锁）的方式，而应采用中断锁。</p>
+<h4 id="资源计数"><a href="#TOC">资源计数</a></h4>
+<p>资源计数适合于线程间速度不匹配的场合，这个时候信号量可以做为前一线程工作完成的计数，而当调度到后一线程时，它可以以一种连续的方式一次处理数个事件。例如，生产者与消费者问题中，生产者可以对信号进行多次释放，而后消费者被调度到时能够一次处理多个资源。 注： 一般资源计数类型多是混合方式的线程间同步，因为对于单个的资源处理依然存在线程的多重访问，这就需要对一个单独的资源进行访问、处理，并进行锁方式的互斥操作。</p>
+<h2 id="互斥量"><a href="#TOC">互斥量</a></h2>
+<p>互斥量又叫相互排斥的信号量，是一种特殊的二值性信号量。它和信号量不同的是，它支持互斥量所有权、递归访问以及防止优先级翻转的特性。互斥量工作示意图如图6-5所示。</p>
+<p>互斥量的状态只有两种，开锁或闭锁（两种状态值）。当有线程持有它时，互斥量处于闭锁状态，由这个线程获得它的所有权。相反，当这个线程释放它时，将对互斥量进行开锁，失去它的所有权。当一个线程持有互斥量时，其他线程将不能够对它进行开锁或持有它，持有该互斥量的线程也能够再次获得这个锁而不被挂起。这个特性与一般的二值信号量有很大的不同，在信号量中因为已经不存在实例，线程递归持有会发生主动挂起（最终形成死锁）。</p>
+<p>使用信号量会导致的另一个潜在问题是线程优先级翻转。所谓优先级翻转问题即当一个高优先级线程试图通过信号量机制访问共享资源时，如果该信号量已被一低优先级线程持有，而这个低优先级线程在运行过程中可能又被其它一些中等优先级的线程抢占，因此造成高优先级线程被许多具有较低优先级的线程阻塞，实时性难以得到保证。例如：有优先级为A、B和C的三个线程，优先级A&gt; B &gt; C。线程A，B处于挂起状态，等待某一事件触发，线程C正在运行，此时线程C开始使用某一共享资源M。在使用过程中，线程A等待的事件到来，线程A转为就绪态，因为它比线程C优先级高，所以立即执行。但是当线程A要使用共享资源M时，由于其正在被线程C使用，因此线程A被挂起切换到线程C运行。如果此时线程B等待的事件到来，则线程B转为就绪态。由于线程B的优先级比线程C高，因此线程B开始运行，直到其运行完毕，线程C才开始运行。只有当线程C释放共享资源M后，线程A才得以执行。在这种情况下，优先级发生了翻转，线程B先于线程A运行。这样便不能保证高优先级线程的响应时间。</p>
+<p>在RT-Thread操作系统中实现的是优先级继承算法。优先级继承是通过在线程A被阻塞的期间内，将线程C的优先级提升到线程A的优先级别，从而解决优先级翻转引起的问题。这样能够防止C（间接地防止A）被B抢占。优先级继承协议是指，提高某个占有某种资源的低优先级线程的优先级，使之与所有等待该资源的线程中优先级最高的那个线程的优先级相等，然后执行，而当这个低优先级线程释放该资源时，优先级重新回到初始设定。因此，继承优先级的线程避免了系统资源被任何中间优先级的线程抢占。</p>
+<p>警告： 在获得互斥量后，请尽快释放互斥量，并且在持有互斥量的过程中，不得再行更改持有互斥量线程的优先级。</p>
+<h3 id="互斥量控制块"><a href="#TOC">互斥量控制块</a></h3>
+<p>互斥量控制块的数据结构</p>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="kw">struct</span> rt_mutex
+    {
+        <span class="kw">struct</span> rt_ipc_object parent;                <span class="co">/* 继承自ipc_object类 */</span>
+
+        rt_uint16_t          value;                 <span class="co">/* 互斥量的值 */</span>
+        rt_uint8_t           original_priority;     <span class="co">/* 持有线程的原始优先级 */</span>
+        rt_uint8_t           hold;                  <span class="co">/* 持有线程的持有次数   */</span>
+        <span class="kw">struct</span> rt_thread    *owner;                 <span class="co">/* 当前拥有互斥量的线程 */</span>
+    };
+    <span class="co">/* rt_mutext_t为指向互斥量结构体的指针 */</span>
+    <span class="kw">typedef</span> <span class="kw">struct</span> rt_mutex* rt_mutex_t;</code></pre>
+<p>rt_mutex对象从rt_ipc_object中派生，由IPC容器管理。</p>
+<h3 id="互斥量相关接口"><a href="#TOC">互斥量相关接口</a></h3>
+<h4 id="创建互斥量"><a href="#TOC">创建互斥量</a></h4>
+<p>创建一个互斥量时，内核首先创建一个互斥量控制块，然后完成对该控制块的初始化工作。创建互斥量使用下面的函数接口：</p>
+<pre><code>rt_mutex_t rt_mutex_create (const char* name, rt_uint8_t flag);</code></pre>
+<p>可以调用rt_mutex_create函数创建一个互斥量，它的名字有name所指定。创建的互斥量由于指定的flag不同，而有不同的意义： 使用PRIO优先级flag创建的IPC对象，在多个线程等待资源时，将由优先级高的线程优先获得资源。而使用FIFO先进先出flag创建的IPC对象，在多个线程等待资源时，将按照先来先得的顺序获得资源。</p>
+<p>参数： name – 互斥量的名称； flag – 互斥量标志，可以取如下类型的数值： #define RT_IPC_FLAG_FIFO 0x00 /* IPC参数采用FIFO先进先出方式<em>/ #define RT_IPC_FLAG_PRIO 0x01 /</em> IPC参数采用优先级方式*/</p>
+<p>返回值： 创建成功返回指向互斥量的互斥量句柄；否则返回RT_NULL。</p>
+<h4 id="删除互斥量"><a href="#TOC">删除互斥量</a></h4>
+<p>系统不再使用互斥量时，通过删除互斥量以释放系统资源。删除互斥量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_mutex_delete (rt_mutex_t mutex);</code></pre>
+<p>当删除一个互斥量时，所有等待此互斥量的线程都将被唤醒，等待线程获得的返回值是-RT_ERROR。然后系统将该互斥量从内核对象管理器链表中删除并释放互斥量占用的内存空间。</p>
+<p>参数： mutex – 互斥量对象的句柄； 返回值： RT_EOK</p>
+<h4 id="初始化互斥量"><a href="#TOC">初始化互斥量</a></h4>
+<p>静态互斥量对象的内存是在系统编译时由编译器分配的，一般放于数据段或ZI段中。在使用这类静态互斥量对象前，需要先进行初始化。初始化互斥量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_mutex_init (rt_mutex_t mutex, const char* name, rt_uint8_t flag);</code></pre>
+<p>使用该函数接口时，需指定互斥量对象的句柄（即指向互斥量控制块的指针），互斥量名称以及互斥量标志。互斥量标志可用上面创建互斥量函数里提到的标志。</p>
+<p>参数： mutex – 互斥量对象的句柄，它由用户提供，并指向互斥量对象的内存块； name – 互斥量名称； flag – 互斥量标志，可以取如下类型的数值：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_IPC_FLAG_FIFO 0x00 </span><span class="co">/* IPC参数采用FIFO先进先出方式*/</span>
+<span class="ot">#define RT_IPC_FLAG_PRIO 0x01 </span><span class="co">/* IPC参数采用优先级方式*/</span></code></pre>
+<p>返回值： RT_EOK</p>
+<h4 id="脱离互斥量"><a href="#TOC">脱离互斥量</a></h4>
+<p>脱离互斥量将把互斥量对象从内核对象管理器中删除。脱离互斥量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_mutex_detach (rt_mutex_t mutex);</code></pre>
+<p>使用该函数接口后，内核先唤醒所有挂在该互斥量上的线程（线程的返回值是-RT_ERROR），然后系统将该互斥量从内核对象管理器链表中删除。</p>
+<p>参数： mutex – 互斥量对象的句柄； 返回值： RT_EOK</p>
+<h4 id="获取互斥量"><a href="#TOC">获取互斥量</a></h4>
+<p>线程通过互斥量申请服务获取互斥量的所有权。线程对互斥量的所有权是独占的，某一个时刻一个互斥量只能被一个线程持有。获取互斥量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_mutex_take (rt_mutex_t mutex, rt_int32_t time);</code></pre>
+<p>如果互斥量没有被其他线程控制，那么申请该互斥量的线程将成功获得该互斥量。如果互斥量已经被当前线程线程控制，则该互斥量的持有计数加1，当前线程也不会挂起等待。如果互斥量已经被其他线程占有，则当前线程在该互斥量上挂起等待，直到其他线程释放它或者等待时间超过指定的超时时间。</p>
+<p>参数： mutex – 互斥量对象的句柄； time – 指定等待的时间。 返回值： 成功获得互斥量返回RT_EOK；超时返回-RT_ETIMEOUT；其他返回-RT_ERROR。</p>
+<h4 id="释放互斥量"><a href="#TOC">释放互斥量</a></h4>
+<p>当线程完成互斥资源的访问后，应尽快释放它占据的互斥量，使得其他线程能及时获取该互斥量。释放互斥量使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_mutex_release(rt_mutex_t mutex);</code></pre>
+<p>使用该函数接口时，只有已经拥有互斥量控制权的线程才能释放它，每释放一次该互斥量，它的持有计数就减1。当该互斥量的持有计数为零时（即持有线程已经释放所有的持有操作），它变为可用，等待在该信号量上的线程将被唤醒。如果线程的运行优先级被互斥量提升，那么当互斥量被释放后，线程恢复为持有互斥量前的优先级。</p>
+<p>参数： mutex – 互斥量对象的句柄。 返回值： RT_EOK</p>
+<p>使用互斥量的例程如例6-5所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"> <span class="co">/*</span>
+<span class="co"> * 程序清单：互斥量使用例程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个例子将创建3个动态线程以检查持有互斥量时，持有的线程优先级是否</span>
+<span class="co"> * 被调整到等待线程优先级中的最高优先级。</span>
+<span class="co"> *</span>
+<span class="co"> * 线程1，2，3的优先级从高到低分别被创建，</span>
+<span class="co"> * 线程3先持有互斥量，而后线程2试图持有互斥量，此时线程3的优先级应该</span>
+<span class="co"> * 被提升为和线程2的优先级相同。线程1用于检查线程3的优先级是否被提升</span>
+<span class="co"> * 为与线程2的优先级相同。</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+<span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid3 = RT_NULL;
+<span class="dt">static</span> rt_mutex_t mutex = RT_NULL;
+
+<span class="co">/* 线程1入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="co">/* 先让低优先级线程运行 */</span>
+    rt_thread_delay(<span class="dv">10</span>);
+
+    <span class="co">/* 此时thread3持有mutex，并且thread2等待持有mutex */</span>
+
+    <span class="co">/* 检查thread2与thread3的优先级情况 */</span>
+    <span class="kw">if</span> (tid2-&gt;current_priority != tid3-&gt;current_priority)
+    {
+        <span class="co">/* 优先级不相同，测试失败 */</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+        <span class="kw">return</span>;
+    }
+}
+
+<span class="co">/* 线程2入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span>* parameter)
+{
+    rt_err_t result;
+
+    <span class="co">/* 先让低优先级线程运行 */</span>
+    rt_thread_delay(<span class="dv">5</span>);
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/*</span>
+<span class="co">         * 试图持有互斥锁，此时thread3持有，应把thread3的优先级提升</span>
+<span class="co">         * 到thread2相同的优先级</span>
+<span class="co">         */</span>
+        result = rt_mutex_take(mutex, RT_WAITING_FOREVER);
+
+        <span class="kw">if</span> (result == RT_EOK)
+        {
+            <span class="co">/* 释放互斥锁 */</span>
+            rt_mutex_release(mutex);
+        }
+    }
+}
+
+<span class="co">/* 线程3入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread3_entry(<span class="dt">void</span>* parameter)
+{
+    rt_tick_t tick;
+    rt_err_t result;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        result = rt_mutex_take(mutex, RT_WAITING_FOREVER);
+        result = rt_mutex_take(mutex, RT_WAITING_FOREVER);
+        <span class="kw">if</span> (result != RT_EOK)
+        {
+            tc_stat(TC_STAT_END | TC_STAT_FAILED);
+        }
+
+        <span class="co">/* 做一个长时间的循环，总共50个OS Tick */</span>
+        tick = rt_tick_get();
+        <span class="kw">while</span> (rt_tick_get() - tick &lt; <span class="dv">50</span>) ;
+
+        rt_mutex_release(mutex);
+        rt_mutex_release(mutex);
+    }
+}
+
+<span class="dt">int</span> rt_application_init()
+{
+    <span class="co">/* 创建互斥锁 */</span>
+    mutex = rt_mutex_create(<span class="st">&quot;mutex&quot;</span>, RT_IPC_FLAG_FIFO);
+    <span class="kw">if</span> (mutex == RT_NULL)
+    {
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+        <span class="kw">return</span> <span class="dv">0</span>;
+    }
+
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>,
+        thread1_entry, <span class="co">/* 线程入口是thread1_entry */</span>
+        RT_NULL, <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY - <span class="dv">1</span>, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>,
+        thread2_entry, <span class="co">/* 线程入口是thread2_entry */</span>
+        RT_NULL, <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="co">/* 创建线程3 */</span>
+    tid3 = rt_thread_create(<span class="st">&quot;t3&quot;</span>,
+        thread3_entry, <span class="co">/* 线程入口是thread3_entry */</span>
+        RT_NULL, <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY + <span class="dv">1</span>, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid3 != RT_NULL)
+        rt_thread_startup(tid3);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="使用场合-3"><a href="#TOC">使用场合</a></h3>
+<p>互斥量的使用比较单一，因为它是信号量的一种，并且它是以锁的形式存在。在初始化的时候，互斥量永远都处于开锁的状态，而被线程持有的时候则立刻转为闭锁的状态。互斥量更适合于：</p>
+<ul>
+<li>线程多次持有互斥量的情况下。这样可以避免同一线程多次递归持有而造成死锁的问题；</li>
+<li>可能会由于多线程同步而造成优先级翻转的情况；</li>
+</ul>
+<p>另外需要切记的是互斥量不能在中断服务例程中使用。</p>
+<h2 id="事件"><a href="#TOC">事件</a></h2>
+<p>事件主要用于线程间的同步，与信号量不同，它的特点是可以实现一对多，多对多的同步。即一个线程可等待多个事件的触发：可以是其中任意一个事件唤醒线程进行事件处理的操作；也可以是几个事件都到达后才唤醒线程进行后续的处理；同样，事件也可以是多个线程同步多个事件，这种多个事件的集合可以用一个32位无符号整型变量来表示，变量的每一位代表一个事件，线程通过“逻辑与”或“逻辑或”与一个或多个事件建立关联，形成一个事件集。事件的“逻辑或”也称为是独立型同步，指的是线程与任何事件之一发生同步；事件“逻辑与”也称为是关联型同步，指的是线程与若干事件都发生同步。</p>
+<p>RT-Thread定义的事件有以下特点：</p>
+<ul>
+<li>事件只与线程相关，事件间相互独立：每个线程拥有32个事件标志，采用一个32 bit无符号整型数进行记录，每一个bit代表一个事件。若干个事件构成一个事件集；</li>
+<li>事件仅用于同步，不提供数据传输功能；</li>
+<li>事件无排队性，即多次向线程发送同一事件(如果线程还未来得及读走)，其效果等同于只发送一次。</li>
+</ul>
+<p>在RT-Thread实现中，每个线程都拥有一个事件信息标记，它有三个属性，分别是RT_EVENT_FLAG_AND(逻辑与)，RT_EVENT_FLAG_OR(逻辑或）以及RT_EVENT_FLAG_CLEAR (清除标记）。当线程等待事件同步时，可以通过32个事件标志和这个事件信息标记来判断当前接收的事件是否满足同步条件。</p>
+<p>如图6-6所示，线程1的事件标志中第2位和第29位被置位，如果事件信息标记位设为逻辑与，则表示线程#1只有在事件1和事件29都发生以后才会被触发唤醒，如果事件信息标记位设为逻辑或，则事件1或事件29中的任意一个发生都会触发唤醒线程#1。如果信息标记同时设置了清除标记位，则当线程#1唤醒后将主动把事件1和事件29清为零，否则事件标志将依然存在（即置1）。</p>
+<h3 id="事件控制块"><a href="#TOC">事件控制块</a></h3>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> rt_event
+{
+    <span class="kw">struct</span> rt_ipc_object parent; <span class="co">/* 继承自ipc_object类 */</span>
+    rt_uint32_t set;                <span class="co">/* 事件集合           */</span>
+};
+<span class="co">/* rt_event_t是指向事件结构体的指针 */</span>
+<span class="kw">typedef</span> <span class="kw">struct</span> rt_event* rt_event_t;</code></pre>
+<p>rt_event对象从rt_ipc_object 中派生，由IPC容器管理。</p>
+<h3 id="事件相关接口"><a href="#TOC">事件相关接口</a></h3>
+<h4 id="创建事件"><a href="#TOC">创建事件</a></h4>
+<p>当创建一个事件时，内核首先创建一个事件控制块，然后对该事件控制块进行基本的初始化，创建事件使用下面的函数接口：</p>
+<pre><code>rt_event_t rt_event_create (const char* name, rt_uint8_t flag);</code></pre>
+<p>调用该函数接口时，系统会从动态内存堆中分配事件对象，然后进行对象的初始化，IPC对象初始化，并把set设置成0。</p>
+<p>参数： name – 事件的名称； flag – 事件的标志，可以使用如下的数值： #define RT_IPC_FLAG_FIFO 0x00 /* IPC参数采用FIFO方式<em>/ #define RT_IPC_FLAG_PRIO 0x01 /</em> IPC参数采用优先级方式*/</p>
+<p>返回值： 创建成功返回事件对象的句柄；创建失败返回RT_NULL。</p>
+<h4 id="删除事件"><a href="#TOC">删除事件</a></h4>
+<p>系统不再使用事件对象时，通过删除事件对象控制块来释放系统资源。删除事件可以使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_event_delete (rt_event_t event);</code></pre>
+<p>在调用rt_event_delete函数删除一个事件对象时，应该确保该事件不再被使用。在删除前会唤醒所有挂起在该事件上的线程（线程的返回值是-RT_ERROR），然后释放事件对象占用的内存块。</p>
+<p>参数： event – 事件对象的句柄。 返回值： RT_EOK</p>
+<p>初始化事件 静态事件对象的内存是在系统编译时由编译器分配的，一般放于数据段或ZI段中。在使用静态事件对象前，需要先行对它进行初始化操作。初始化事件使用下面的函数接口： rt_err_t rt_event_init(rt_event_t event, const char* name, rt_uint8_t flag);</p>
+<p>调用该接口时，需指定静态事件对象的句柄（即指向事件控制块的指针），然后系统会初始化事件对象，并加入到系统对象容器中进行管理。</p>
+<p>参数： event – 事件对象的句柄。 name – 事件名称； flag – 事件的标志，可以使用如下的数值：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_IPC_FLAG_FIFO 0x00 </span><span class="co">/* IPC参数采用FIFO方式*/</span>
+<span class="ot">#define RT_IPC_FLAG_PRIO 0x01 </span><span class="co">/* IPC参数采用优先级方式*/</span></code></pre>
+<p>返回值： RT_EOK</p>
+<h4 id="脱离事件"><a href="#TOC">脱离事件</a></h4>
+<p>脱离信号量是将事件对象从内核对象管理器中删除。脱离事件使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_event_detach(rt_event_t event);</code></pre>
+<p>用户调用这个函数时，系统首先唤醒所有挂在该事件等待队列上的线程（线程的返回值是- RT_ERROR ），然后将该事件从内核对象管理器中删除。</p>
+<p>参数： event – 事件对象的句柄。 返回值： RT_EOK</p>
+<h4 id="接收事件"><a href="#TOC">接收事件</a></h4>
+<p>内核使用32位的无符号整型数来标识事件，它的每一位代表一个事件，因此一个事件对象可同时等待接收32个事件，内核可以通过指定选择参数“逻辑与”或“逻辑或”来选择如何激活线程，使用“逻辑与”参数表示只有当所有等待的事件都发生时才激活线程，而使用“逻辑或”参数则表示只要有一个等待的事件发生就激活线程。接收事件使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_event_recv(rt_event_t event, rt_uint32_t set, rt_uint8_t option, rt_int32_t timeout, rt_uint32_t* recved);</code></pre>
+<p>当用户调用这个接口时，系统首先根据set参数和接收选项来判断它要接收的事件是否发生，如果已经发生，则根据参数option上是否设置有RT_EVENT_FLAG_CLEAR来决定是否重置事件的相应标志位，然后返回（其中recved参数返回收到的事件）； 如果没有发生，则把等待的set和option参数填入线程本身的结构中，然后把线程挂起在此事件对象上，直到其等待的事件满足条件或等待时间超过指定的超时时间。如果超时时间设置为零，则表示当线程要接受的事件没有满足其要求时就不等待，而直接返回-RT_TIMEOUT。</p>
+<p>参数： event – 事件对象的句柄。 set – 接收线程感兴趣的事件； option – 接收选项； timeout – 指定超时时间； recved – 指向收到的事件； 返回值： 正确接收返回RT_EOK，超时返回-RT_TIMEOUT，其他返回-RT_ERROR。</p>
+<h4 id="发送事件"><a href="#TOC">发送事件</a></h4>
+<p>通过发送事件服务，可以发送一个或多个事件。发送事件可以使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_event_send(rt_event_t event, rt_uint32_t set);</code></pre>
+<p>使用该函数接口时，通过参数set指定的事件标志来设定event对象的事件标志值，然后遍历等待在event事件对象上的等待线程链表，判断是否有线程的事件激活要求与当前event对象事件标志值匹配，如果有，则唤醒该线程。</p>
+<p>参数： event – 事件对象的句柄。 set – 发送的事件集； 返回值： 返回RT_EOK</p>
+<p>使用事件的例程如例6-6所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：事件例程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个程序会创建3个动态线程及初始化一个静态事件对象</span>
+<span class="co"> * 一个线程等待在事件对象上以接收事件；</span>
+<span class="co"> * 一个线程定时发送事件 (事件3)</span>
+<span class="co"> * 一个线程定时发送事件 (事件5)</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+<span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid3 = RT_NULL;
+
+<span class="co">/* 事件控制块 */</span>
+<span class="dt">static</span> <span class="kw">struct</span> rt_event event;
+
+<span class="co">/* 线程1入口函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span> *param)
+{
+    rt_uint32_t e;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 以逻辑与的方式接收事件 */</span>
+        <span class="kw">if</span> (rt_event_recv(&amp;event, ((<span class="dv">1</span> &lt;&lt; <span class="dv">3</span>) | (<span class="dv">1</span> &lt;&lt; <span class="dv">5</span>)),
+            RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR,
+            RT_WAITING_FOREVER, &amp;e) == RT_EOK)
+        {
+            rt_kprintf(<span class="st">&quot;thread1: AND recv event 0x%x</span><span class="ch">\n</span><span class="st">&quot;</span>, e);
+        }
+
+        rt_kprintf(<span class="st">&quot;thread1: delay 1s to prepare second event</span><span class="ch">\n</span><span class="st">&quot;</span>);
+        rt_thread_delay(<span class="dv">10</span>);
+
+        <span class="co">/* 以逻辑或的方式接收事件 */</span>
+        <span class="kw">if</span> (rt_event_recv(&amp;event, ((<span class="dv">1</span> &lt;&lt; <span class="dv">3</span>) | (<span class="dv">1</span> &lt;&lt; <span class="dv">5</span>)),
+            RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
+            RT_WAITING_FOREVER, &amp;e) == RT_EOK)
+        {
+            rt_kprintf(<span class="st">&quot;thread1: OR recv event 0x%x</span><span class="ch">\n</span><span class="st">&quot;</span>, e);
+        }
+
+        rt_thread_delay(<span class="dv">5</span>);
+    }
+}
+
+<span class="co">/* 线程2入口函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span> *param)
+{
+    <span class="co">/* 线程2持续地发送事件#3 */</span>
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        rt_kprintf(<span class="st">&quot;thread2: send event1</span><span class="ch">\n</span><span class="st">&quot;</span>);
+        rt_event_send(&amp;event, (<span class="dv">1</span> &lt;&lt; <span class="dv">3</span>));
+
+        rt_thread_delay(<span class="dv">10</span>);
+    }
+}
+
+<span class="co">/* 线程3入口函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread3_entry(<span class="dt">void</span> *param)
+{
+    <span class="co">/* 线程3持续地发送事件#5 */</span>
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        rt_kprintf(<span class="st">&quot;thread3: send event2</span><span class="ch">\n</span><span class="st">&quot;</span>);
+        rt_event_send(&amp;event, (<span class="dv">1</span> &lt;&lt; <span class="dv">5</span>));
+
+        rt_thread_delay(<span class="dv">20</span>);
+    }
+}
+
+<span class="dt">int</span> rt_application_init()
+{
+    <span class="co">/* 初始化事件对象 */</span>
+    rt_event_init(&amp;event, <span class="st">&quot;event&quot;</span>, RT_IPC_FLAG_FIFO);
+
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>,
+        thread1_entry, <span class="co">/* 线程入口是thread1_entry */</span>
+        RT_NULL, <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>,
+        thread2_entry, <span class="co">/* 线程入口是thread2_entry */</span>
+        RT_NULL, <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="co">/* 创建线程3 */</span>
+    tid3 = rt_thread_create(<span class="st">&quot;t3&quot;</span>,
+        thread3_entry, <span class="co">/* 线程入口是thread3_entry */</span>
+        RT_NULL, <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid3 != RT_NULL)
+        rt_thread_startup(tid3);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="使用场合-4"><a href="#TOC">使用场合</a></h3>
+<p>事件可使用于多种场合，它能够在一定程度上替代信号量，用于线程间同步。一个线程或中断服务例程发送一个事件给事件对象，而后等待的线程被唤醒并对相应的事件进行处理。但是它与信号量不同的是，事件的发送操作在事件未清除前，是不可累计的，而信号量的释放动作是累计的。 事件另外一个特性是，接收线程可等待多种事件，即多个事件对应一个线程或多个线程。同时按照线程等待的参数，可选择是“逻辑或”触发还是“逻辑与”触发。这个特性也是信号量等所不具备的，信号量只能识别单一的释放动作，而不能同时等待多种类型的释放。 如图6-7所示：</p>
+<p>图6-7 多事件接收 各个事件类型可分别发送或一起发送给事件对象，而事件对象可以等待多个线程，它们仅对它们感兴趣的事件进行关注。当有它们感兴趣的事件发生时，线程就将被唤醒并进行后续的处理动作。</p>
+<h2 id="邮箱"><a href="#TOC">邮箱</a></h2>
+<p>邮箱服务是实时操作系统中一种典型的任务间通信方法，特点是开销比较低，效率较高。邮箱中的每一封邮件只能容纳固定的4字节内容（针对32位处理系统，指针的大小即为4个字节，所以一封邮件恰好能够容纳一个指针）。典型的邮箱也称作交换消息，如图6-8所示，线程或中断服务例程把一封4字节长度的邮件发送到邮箱中。而一个或多个线程可以从邮箱中接收这些邮件进行处理。</p>
+<p>RT-Thread操作系统采用的邮箱通信机制有点类似于传统意义上的管道，用于线程间通讯。非阻塞方式的邮件发送过程能够安全的应用于中断服务中，是线程，中断服务，定时器向线程发送消息的有效手段。通常来说，邮件收取过程可能是阻塞的，这取决于邮箱中是否有邮件，以及收取邮件时设置的超时时间。当邮箱中不存在邮件且超时时间不为0时，邮件收取过程将变成阻塞方式。所以在这类情况下，只能由线程进行邮件的收取。</p>
+<p>RT-Thread操作系统的邮箱中可存放固定条数的邮件，邮箱容量在创建/初始化邮箱时设定，每个邮件大小为4字节。当需要在线程间传递比较大的消息时，可以把指向一个缓冲区的指针作为邮件发送到邮箱中。</p>
+<p>在一个线程向邮箱发送邮件时，如果邮箱没满，将把邮件复制到邮箱中。如果邮箱已经满了，发送线程可以设置超时时间，选择是否等待挂起或直接返回-RT_EFULL。如果发送线程选择挂起等待，那么当邮箱中的邮件被收取而空出空间来时，等待挂起的发送线程将被唤醒继续发送的过程。</p>
+<p>在一个线程从邮箱中接收邮件时，如果邮箱是空的，接收线程可以选择是否等待挂起直到收到新的邮件而唤醒，或设置超时时间。当设置的超时时间，邮箱依然未收到邮件时，这个选择超时等待的线程将被唤醒并返回-RT_ETIMEOUT。如果邮箱中存在邮件，那么接收线程将复制邮箱中的4个字节邮件到接收线程中。</p>
+<h3 id="邮箱控制块"><a href="#TOC">邮箱控制块</a></h3>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> rt_mailbox
+{
+    <span class="kw">struct</span> rt_ipc_object parent;
+
+    rt_uint32_t* msg_pool;              <span class="co">/* 邮箱缓冲区的开始地址 */</span>
+    rt_uint16_t size;                   <span class="co">/* 邮箱缓冲区的大小     */</span>
+
+    rt_uint16_t entry;                  <span class="co">/* 邮箱中邮件的数目     */</span>
+rt_uint16_t in_offset, out_offset;  <span class="co">/* 邮箱缓冲的进出指针   */</span>
+rt_list_t suspend_sender_thread;    <span class="co">/* 发送线程的挂起等待队列 */</span>
+};
+<span class="kw">typedef</span> <span class="kw">struct</span> rt_mailbox* rt_mailbox_t;</code></pre>
+<p>rt_mailbox对象从rt_ipc_object中派生，由IPC容器管理。</p>
+<h3 id="邮箱相关接口"><a href="#TOC">邮箱相关接口</a></h3>
+<h4 id="创建邮箱"><a href="#TOC">创建邮箱</a></h4>
+<p>创建邮箱对象可以调用如下的函数接口：</p>
+<pre><code>rt_mailbox_t rt_mb_create (const char* name, rt_size_t size, rt_uint8_t flag);</code></pre>
+<p>创建邮箱对象时会先创建一个邮箱对象控制块，然后给邮箱分配一块内存空间用来存放邮件，这块内存的大小等于邮件大小（4字节）与邮箱容量的乘积，接着初始化接收邮件和发送邮件在邮箱中的偏移量。</p>
+<p>参数： name – 邮箱名称； size – 邮箱容量； flag – 邮箱标志，它可以取如下数值：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_IPC_FLAG_FIFO 0x00 </span><span class="co">/* IPC参数采用FIFO方式*/</span>
+<span class="ot">#define RT_IPC_FLAG_PRIO 0x01 </span><span class="co">/* IPC参数采用优先级方式*/</span></code></pre>
+<p>返回值： 创建成功返回邮箱对象的句柄；否则返回-RT_ERROR。</p>
+<h4 id="删除邮箱"><a href="#TOC">删除邮箱</a></h4>
+<p>当邮箱不再被使用时，应该删除它来释放相应的系统资源，一旦操作完成，邮箱将被永久性的删除。删除邮箱的函数接口如下：</p>
+<pre><code>rt_err_t rt_mb_delete (rt_mailbox_t mb);</code></pre>
+<p>删除邮箱时，如果有线程被挂起在该邮箱对象上，内核先唤醒挂起在该邮箱上的所有线程（线程获得返回值是-RT_ERROR），然后再释放邮箱使用的内存，最后删除邮箱对象。</p>
+<p>参数： mb – 邮箱对象的句柄。 返回值： RT_EOK</p>
+<h4 id="初始化邮箱"><a href="#TOC">初始化邮箱</a></h4>
+<p>初始化邮箱跟创建邮箱类似，只是初始化邮箱用于静态邮箱对象的初始化。其他与创建邮箱不同的是，此处静态邮箱对象所使用的内存空间是由用户线程指定的一个缓冲区空间，用户把缓冲区的指针传递给邮箱对象控制块，其余的初始化工作与创建邮箱时相同。函数接口如下：</p>
+<pre><code>rt_err_t rt_mb_init(rt_mailbox_t mb, const char* name, void* msgpool,
+    rt_size_t size, rt_uint8_t flag)</code></pre>
+<p>初始化邮箱时，该函数接口需要获得用户已经申请获得的邮箱对象控制块，缓冲区的指针，以及邮箱名称和邮箱容量。</p>
+<p>参数： mb – 邮箱对象的句柄； name – 邮箱名称； msgpool – 缓冲区指针； size – 邮箱容量； flag – 邮箱标志，它可以取如下数值：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_IPC_FLAG_FIFO 0x00 </span><span class="co">/* IPC参数采用FIFO方式*/</span>
+<span class="ot">#define RT_IPC_FLAG_PRIO 0x01 </span><span class="co">/* IPC参数采用优先级方式*/</span></code></pre>
+<p>返回值： RT_EOK</p>
+<p>注： 这里的size参数指定的是邮箱的容量，即如果msgpool的字节数是N，那么邮箱容量应该是N/4。</p>
+<h4 id="脱离邮箱"><a href="#TOC">脱离邮箱</a></h4>
+<p>脱离邮箱将把邮箱对象从内核对象管理器中删除。脱离邮箱使用下面的接口：</p>
+<pre><code>rt_err_t rt_mb_detach(rt_mailbox_t mb);</code></pre>
+<p>使用该函数接口后，内核先唤醒所有挂在该邮箱上的线程（线程获得返回值是- RT_ERROR ），然后将该邮箱对象从内核对象管理器中删除。</p>
+<p>参数： mb – 邮箱对象的句柄。 返回值： RT_EOK</p>
+<h4 id="发送邮件"><a href="#TOC">发送邮件</a></h4>
+<p>线程或者中断服务程序可以通过邮箱给其他线程发送邮件，发送邮件函数接口如下：</p>
+<pre><code>rt_err_t rt_mb_send (rt_mailbox_t mb, rt_uint32_t value);</code></pre>
+<p>发送的邮件可以是32位任意格式的数据，一个整型值或者一个指向缓冲区的指针。当邮箱中的邮件已经满时，发送邮件的线程或者中断程序会收到-RT_EFULL 的返回值。</p>
+<p>参数： mb – 邮箱对象的句柄； value – 邮件内容。 返回值： 发送成功返回RT_EOK；如果邮箱已经满了，返回-RT_EFULL。</p>
+<h4 id="等待方式发送邮件"><a href="#TOC">等待方式发送邮件</a></h4>
+<p>用户也可以通过如下的函数接口向指定邮箱发送邮件：</p>
+<pre><code>rt_err_t rt_mb_send_wait (rt_mailbox_t mb, rt_uint32_t value, rt_int32_t timeout);</code></pre>
+<p>rt_mb_send_wait与rt_mb_send的区别在于，如果邮箱已经满了，那么发送线程将根据设定的timeout参数等待邮箱中因为收取邮件而空出空间。如果设置的超时时间到达依然没有空出空间，这是发送线程将被唤醒返回错误码。</p>
+<p>参数： mb – 邮箱对象的句柄； value – 邮件内容； timeout – 超时时间。</p>
+<p>返回值： 发送成功返回RT_EOK；如果设置的时间超时依然未发送成功，返回-RT_ETIMEOUT，其他情况返回-RT_ERROR。</p>
+<h4 id="接收邮件"><a href="#TOC">接收邮件</a></h4>
+<p>只有当接收者接收的邮箱中有邮件时，接收者才能立即取到邮件并返回RT_EOK的返回值，否则接收线程会根据超时时间设置，或挂起在邮箱的等待线程队列上，或直接返回。接收邮件函数接口如下：</p>
+<pre><code>rt_err_t rt_mb_recv (rt_mailbox_t mb, rt_uint32_t* value, rt_int32_t timeout);</code></pre>
+<p>接收邮件时，接收者需指定接收邮件的邮箱句柄，并指定接收到的邮件存放位置以及最多能够等待的超时时间。如果接收时设定了超时，当指定的时间内依然未收到邮件时，将返回-RT_ETIMEOUT。</p>
+<p>参数： mb – 邮箱对象的句柄； value – 邮件内容； timeout – 指定超时时间。 返回值： 成功收到返回RT_EOK，超时返回-RT_ETIMEOUT，其他返回-RT_ERROR。</p>
+<pre><code>使用邮箱的例程如例6-7所示：</code></pre>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：邮箱例程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个程序会创建2个动态线程，一个静态的邮箱对象，其中一个线程往邮箱中发送邮件，</span>
+<span class="co"> * 一个线程往邮箱中收取邮件。</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+<span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+
+<span class="co">/* 邮箱控制块 */</span>
+<span class="dt">static</span> <span class="kw">struct</span> rt_mailbox mb;
+<span class="co">/* 用于放邮件的内存池 */</span>
+<span class="dt">static</span> <span class="dt">char</span> mb_pool[<span class="dv">128</span>];
+
+<span class="dt">static</span> <span class="dt">char</span> mb_str1[] = <span class="st">&quot;I&#39;m a mail!&quot;</span>;
+<span class="dt">static</span> <span class="dt">char</span> mb_str2[] = <span class="st">&quot;this is another mail!&quot;</span>;
+
+<span class="co">/* 线程1入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="dt">unsigned</span> <span class="dt">char</span>* str;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        rt_kprintf(<span class="st">&quot;thread1: try to recv a mail</span><span class="ch">\n</span><span class="st">&quot;</span>);
+
+        <span class="co">/* 从邮箱中收取邮件 */</span>
+        <span class="kw">if</span> (rt_mb_recv(&amp;mb, (rt_uint32_t*)&amp;str, RT_WAITING_FOREVER)
+                == RT_EOK)
+        {
+            <span class="co">/* 显示邮箱内容 */</span>
+            rt_kprintf(<span class="st">&quot;thread1: get a mail, the content:%s</span><span class="ch">\n</span><span class="st">&quot;</span>, str);
+
+            <span class="co">/* 延时10个OS Tick */</span>
+            rt_thread_delay(<span class="dv">10</span>);
+        }
+    }
+}
+
+<span class="co">/* 线程2入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span>* parameter)
+{
+    rt_uint8_t count;
+
+    count = <span class="dv">0</span>;
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        count ++;
+        <span class="kw">if</span> (count &amp; <span class="bn">0x1</span>)
+        {
+            <span class="co">/* 发送mb_str1地址到邮箱中 */</span>
+            rt_mb_send(&amp;mb, (rt_uint32_t)&amp;mb_str1[<span class="dv">0</span>]);
+        }
+        <span class="kw">else</span>
+        {
+            <span class="co">/* 发送mb_str2地址到邮箱中 */</span>
+            rt_mb_send(&amp;mb, (rt_uint32_t)&amp;mb_str2[<span class="dv">0</span>]);
+        }
+
+        <span class="co">/* 延时20个OS Tick */</span>
+        rt_thread_delay(<span class="dv">20</span>);
+    }
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    <span class="co">/* 初始化一个mailbox */</span>
+    rt_mb_init(&amp;mb,
+        <span class="st">&quot;mbt&quot;</span>,             <span class="co">/* 名称是mbt */</span>
+        &amp;mb_pool[<span class="dv">0</span>],       <span class="co">/* 邮箱用到的内存池是mb_pool */</span>
+        <span class="kw">sizeof</span>(mb_pool)/<span class="dv">4</span>, <span class="co">/* 大小是mb_pool/4，因为每封邮件的大小是4字节 */</span>
+        RT_IPC_FLAG_FIFO); <span class="co">/* 采用FIFO方式进行线程等待 */</span>
+
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>,
+        thread1_entry,  <span class="co">/* 线程入口是thread1_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>,
+        thread2_entry,  <span class="co">/* 线程入口是thread2_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="使用场合-5"><a href="#TOC">使用场合</a></h3>
+<p>邮箱是一种简单的线程间消息传递方式，在RT-Thread操作系统的实现中能够一次传递4字节邮件，并且邮箱具备一定的存储功能，能够缓存一定数量的邮件数(邮件数由创建、初始化邮箱时指定的容量决定)。邮箱中一封邮件的最大长度是4字节，所以邮箱能够用于不超过4字节的消息传递，当传送的消息长度大于这个数目时就不能再采用邮箱的方式。 最重要的是，在32位系统上4字节的内容恰好适合放置一个指针，所以邮箱也适合那种仅传递指针的情况，例如：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> msg
+{
+    rt_uint8_t *data_ptr;
+    rt_uint32_t data_size;
+};</code></pre>
+<p>对于这样一个消息结构体，其中包含了指向数据的指针data_ptr和数据块长度的变量data_size。当一个线程需要把这个消息发送给另外一个线程时，可以采用如下的操作：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> msg* msg_ptr;
+
+msg_ptr = (<span class="kw">struct</span> msg*)rt_malloc(<span class="kw">sizeof</span>(<span class="kw">struct</span> msg));
+msg_ptr-&gt;data_ptr = ...; <span class="co">/* 指向相应的数据块地址*/</span>
+msg_ptr-&gt;data_size = len; <span class="co">/* 数据块的长度*/</span>
+<span class="co">/* 发送这个消息指针给mb邮箱*/</span>
+rt_mb_send(mb, (rt_uint32_t)msg_ptr);</code></pre>
+<p>而在接收线程中，因为收取过来的是指针，而msg_ptr是一个新分配出来的内存块，所以在接收线程处理完毕后，需要释放相应的内存块：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> msg* msg_ptr;
+<span class="kw">if</span> (rt_mb_recv(mb, (rt_uint32_t*)&amp;msg_ptr) == RT_EOK)
+{
+    <span class="co">/* 在接收线程处理完毕后，需要释放相应的内存块*/</span>
+    rt_free(msg_ptr);
+}</code></pre>
+<h2 id="消息队列"><a href="#TOC">消息队列</a></h2>
+<p>消息队列是另一种常用的线程间通讯方式，它能够接收来自线程或中断服务例程中不固定长度的消息，并把消息缓存在自己的内存空间中。其他线程也能够从消息队列中读取相应的消息，而当消息队列是空的时候，可以挂起读取线程。当有新的消息到达时，挂起的线程将被唤醒以接收并处理消息。消息队列是一种异步的通信方式。</p>
+<p>如图6-9所示，通过消息队列服务，线程或中断服务例程可以将一条或多条消息放入消息队列中。同样，一个或多个线程可以从消息队列中获得消息。当有多个消息发送到消息队列时，通常应将先进入消息队列的消息先传给线程，也就是说，线程先得到的是最先进入消息队列的消息，即先进先出原则(FIFO)。</p>
+<p>图6-9 消息队列的工作示意图</p>
+<p>RT-Thread操作系统的消息队列对象由多个元素组成，当消息队列被创建时，它就被分配了消息队列控制块：消息队列名称、内存缓冲区、消息大小以及队列长度等。同时每个消息队列对象中包含着多个消息框，每个消息框可以存放一条消息；消息队列中的第一个和最后一个消息框被分别称为消息链表头和消息链表尾，对应于消息队列控制块中的msg_queue_head和msg_queue_tail；有些消息框可能是空的，它们通过msg_queue_free形成一个空闲消息框链表。所有消息队列中的消息框总数即是消息队列的长度，这个长度可在消息队列创建时指定。</p>
+<h3 id="消息队列控制块"><a href="#TOC">消息队列控制块</a></h3>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="kw">struct</span> rt_messagequeue
+    {
+        <span class="kw">struct</span> rt_ipc_object parent;
+
+        <span class="dt">void</span>* msg_pool;         <span class="co">/* 存放消息的消息池开始地址 */</span>
+
+        rt_uint16_t msg_size;   <span class="co">/* 每个消息的长度*/</span>
+        rt_uint16_t max_msgs;   <span class="co">/* 最大能够容纳的消息数*/</span>
+
+        rt_uint16_t entry;      <span class="co">/* 队列中已有的消息数*/</span>
+
+        <span class="dt">void</span>* msg_queue_head;   <span class="co">/* 消息链表头*/</span>
+        <span class="dt">void</span>* msg_queue_tail;   <span class="co">/* 消息链表尾*/</span>
+        <span class="dt">void</span>* msg_queue_free;   <span class="co">/* 空闲消息链表*/</span>
+    };
+    <span class="kw">typedef</span> <span class="kw">struct</span> rt_messagequeue* rt_mq_t;</code></pre>
+<p>rt_messagequeue对象从rt_ipc_object中派生，由IPC容器管理。</p>
+<h3 id="消息队列相关接口"><a href="#TOC">消息队列相关接口</a></h3>
+<h4 id="创建消息队列"><a href="#TOC">创建消息队列</a></h4>
+<p>消息队列在使用前，应该被创建出来，或对已有的静态消息队列对象进行初始化，创建消息队列的函数接口如下所示：</p>
+<pre><code>rt_mq_t rt_mq_create(const char* name, rt_size_t msg_size, rt_size_t max_msgs, rt_uint8_t flag);</code></pre>
+<p>创建消息队列时先创建一个消息队列对象控制块，然后给消息队列分配一块内存空间，组织成空闲消息链表，这块内存的大小等于[消息大小+消息头（用于链表连接）]与消息队列容量的乘积，接着再初始化消息队列，此时消息队列为空。</p>
+<p>参数： name – 消息队列的名称； msg_size – 消息队列中一条消息的最大长度； max_msgs – 消息队列的最大容量； flag – 消息队列采用的等待方式，可以取值：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_IPC_FLAG_FIFO 0x00 </span><span class="co">/* IPC参数采用FIFO方式*/</span>
+<span class="ot">#define RT_IPC_FLAG_PRIO 0x01 </span><span class="co">/* IPC参数采用优先级方式*/</span></code></pre>
+<p>返回值： 成功创建返回消息队列对象的句柄；否则返回-RT_ERROR。</p>
+<h4 id="删除消息队列"><a href="#TOC">删除消息队列</a></h4>
+<p>当消息队列不再被使用时，应该删除它以释放系统资源，一旦操作完成，消息队列将被永久性的删除。删除消息队列的函数接口如下：</p>
+<pre><code>rt_err_t rt_mq_delete(rt_mq_t mq);</code></pre>
+<p>删除消息队列时，如果有线程被挂起在该消息队列等待队列上，则内核先唤醒挂起在该消息等待队列上的所有线程（返回值是 -RT_ERROR），然后再释放消息队列使用的内存，最后删除消息队列对象。</p>
+<p>参数： mq – 消息队列对象的句柄； 返回值： RT_EOK</p>
+<h4 id="初始化消息队列"><a href="#TOC">初始化消息队列</a></h4>
+<p>初始化静态消息队列对象跟创建消息队列对象类似，只是静态消息队列对象的内存是在系统编译时由编译器分配的，一般放于数据段或ZI段中。在使用这类静态消息队列对象前，需要进行初始化。初始化消息队列对象的函数接口如下：</p>
+<pre><code>rt_err_t rt_mq_init(rt_mq_t mq, const char* name, void *msgpool, rt_size_t msg_size, rt_size_t pool_size, rt_uint8_t flag);</code></pre>
+<p>初始化消息队列时，该接口需要获得消息队列对象的句柄（即指向消息队列对象控制块的指针）、消息队列名、消息缓冲区指针、消息大小以及消息队列容量。如图6-9所示，消息队列初始化后所有消息都挂在空闲消息列表上，消息队列为空。</p>
+<p>参数： mq – 指向静态消息队列对象的句柄； name – 消息队列的名称； msgpool – 用于存放消息的缓冲区； msg_size – 消息队列中一条消息的最大长度； pool_size – 存放消息的缓冲区大小； flag – 消息队列采用的等待方式，可以取值：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_IPC_FLAG_FIFO 0x00 </span><span class="co">/* IPC参数采用FIFO方式*/</span>
+<span class="ot">#define RT_IPC_FLAG_PRIO 0x01 </span><span class="co">/* IPC参数采用优先级方式*/</span></code></pre>
+<p>返回值： RT_EOK</p>
+<h4 id="脱离消息队列"><a href="#TOC">脱离消息队列</a></h4>
+<p>脱离消息队列将使消息队列对象被从内核对象管理器中删除。脱离消息队列使用下面的接口：</p>
+<pre><code>rt_err_t rt_mq_detach(rt_mq_t mq);</code></pre>
+<p>使用该函数接口后，内核先唤醒所有挂在该消息等待队列对象上的线程（返回值是- RT_ERROR ），然后将该消息队列对象从内核对象管理器中删除。</p>
+<p>参数： mq – 指向静态消息队列对象的句柄； 返回值： RT_EOK</p>
+<h3 id="发送消息"><a href="#TOC">发送消息</a></h3>
+<p>线程或者中断服务程序都可以给消息队列发送消息。当发送消息时，消息队列对象先从空闲消息链表上取下一个空闲消息块，把线程或者中断服务程序发送的消息内容复制到消息块上，然后把该消息块挂到消息队列的尾部。当且仅当空闲消息链表上有可用的空闲消息块时，发送者才能成功发送消息；当空闲消息链表上无可用消息块，说明消息队列已满，此时，发送消息的的线程或者中断程序会收到一个错误码（-RT_EFULL）。发送消息的函数接口如下：</p>
+<pre><code>rt_err_t rt_mq_send (rt_mq_t mq, void* buffer, rt_size_t size);</code></pre>
+<p>发送消息时，发送者需指定发送到的消息队列的对象句柄（即指向消息队列控制块的指针），并且指定发送的消息内容以及消息大小。如图6-9所示，在发送一个普通消息之后，空闲消息链表上的队首消息被转移到了消息队列尾。</p>
+<p>参数： mq – 消息队列对象的句柄； buffer – 指向发送消息数据内容的指针； size – 消息大小。 返回值： 发送成功返回RT_EOK，如果消息队列已满返回-RT_EFULL。</p>
+<h4 id="发送紧急消息"><a href="#TOC">发送紧急消息</a></h4>
+<p>发送紧急消息的过程与发送消息几乎一样，唯一的不同是，当发送紧急消息时，从空闲消息链表上取下来的消息块不是挂到消息队列的队尾，而是挂到队首，这样，接收者就能够优先接收到紧急消息，从而及时进行消息处理。发送紧急消息的函数接口如下：</p>
+<pre><code>rt_err_t rt_mq_urgent(rt_mq_t mq, void* buffer, rt_size_t size);</code></pre>
+<p>参数： mq – 消息队列对象的句柄； buffer – 指向发送消息数据内容的指针； size – 消息大小。 返回值： 发送成功返回RT_EOK，如果消息队列已满返回-RT_EFULL。</p>
+<h4 id="接收消息"><a href="#TOC">接收消息</a></h4>
+<p>当消息队列中有消息时，接收者才能接收消息，否则接收者会根据超时时间设置或挂起在消息队列的等待线程队列上，或直接返回。接收消息函数接口如下：</p>
+<pre><code>rt_err_t rt_mq_recv (rt_mq_t mq, void* buffer, rt_size_t size, rt_int32_t timeout);</code></pre>
+<p>接收消息时，接收者需指定存储消息的消息队列对象句柄，并且指定一个内存缓冲区，接收到的消息内容将被复制到该缓冲区里。此外，还需指定未能及时取到消息时的超时时间。如图6-9所示，接收一个消息后消息队列上的队首消息被转移到了空闲消息链表的尾部。</p>
+<p>参数： mq – 消息队列对象的句柄； buffer – 用于接收消息的数据块； size – 消息大小。 timeout – 指定的超时时间。 返回值： 成功收到返回RT_EOK，超时返回-RT_ETIMEOUT，其他返回-RT_ERROR。</p>
+<p>使用消息队列的例程如例6-8所示：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：消息队列例程</span>
+<span class="co"> *</span>
+<span class="co"> * 这个程序会创建3个动态线程：</span>
+<span class="co"> * 一个线程会从消息队列中收取消息；</span>
+<span class="co"> * 一个线程会定时给消息队列发送消息；</span>
+<span class="co"> * 一个线程会定时给消息队列发送紧急消息。</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+<span class="ot">#include &quot;tc_comm.h&quot;</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid3 = RT_NULL;
+
+<span class="co">/* 消息队列控制块 */</span>
+<span class="dt">static</span> <span class="kw">struct</span> rt_messagequeue mq;
+<span class="co">/* 消息队列中用到的放置消息的内存池 */</span>
+<span class="dt">static</span> <span class="dt">char</span> msg_pool[<span class="dv">2048</span>];
+
+<span class="co">/* 线程1入口函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="dt">char</span> buf[<span class="dv">128</span>];
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        rt_memset(&amp;buf[<span class="dv">0</span>], <span class="dv">0</span>, <span class="kw">sizeof</span>(buf));
+
+        <span class="co">/* 从消息队列中接收消息 */</span>
+        <span class="kw">if</span> (rt_mq_recv(&amp;mq, &amp;buf[<span class="dv">0</span>], <span class="kw">sizeof</span>(buf), RT_WAITING_FOREVER)
+                == RT_EOK)
+        {
+            <span class="co">/* 输出内容 */</span>
+            rt_kprintf(<span class="st">&quot;thread1: recv a msg, the content:%s</span><span class="ch">\n</span><span class="st">&quot;</span>, buf);
+        }
+
+        <span class="co">/* 延迟10个OS Tick */</span>
+        rt_thread_delay(<span class="dv">10</span>);
+    }
+}
+
+<span class="co">/* 线程2入口函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="dt">int</span> i, result;
+    <span class="dt">char</span> buf[] = <span class="st">&quot;this is message No.x&quot;</span>;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; <span class="dv">10</span>; i++)
+        {
+            buf[<span class="kw">sizeof</span>(buf) - <span class="dv">2</span>] = &#39;<span class="dv">0</span>&#39; + i;
+
+            rt_kprintf(<span class="st">&quot;thread2: send message - %s</span><span class="ch">\n</span><span class="st">&quot;</span>, buf);
+            <span class="co">/* 发送消息到消息队列中 */</span>
+            result = rt_mq_send(&amp;mq, &amp;buf[<span class="dv">0</span>], <span class="kw">sizeof</span>(buf));
+            <span class="kw">if</span> ( result == -RT_EFULL)
+            {
+                <span class="co">/* 消息队列满， 延迟1s时间 */</span>
+                rt_kprintf(<span class="st">&quot;message queue full, delay 1s</span><span class="ch">\n</span><span class="st">&quot;</span>);
+                rt_thread_delay(<span class="dv">100</span>);
+            }
+        }
+
+        <span class="co">/* 延时10个OS Tick */</span>
+        rt_thread_delay(<span class="dv">10</span>);
+    }
+}
+
+<span class="co">/* 线程3入口函数 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread3_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="dt">char</span> buf[] = <span class="st">&quot;this is an urgent message!&quot;</span>;
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        rt_kprintf(<span class="st">&quot;thread3: send an urgent message</span><span class="ch">\n</span><span class="st">&quot;</span>);
+
+        <span class="co">/* 发送紧急消息到消息队列中 */</span>
+        rt_mq_urgent(&amp;mq, &amp;buf[<span class="dv">0</span>], <span class="kw">sizeof</span>(buf));
+
+        <span class="co">/* 延时25个OS Tick */</span>
+        rt_thread_delay(<span class="dv">25</span>);
+    }
+}
+
+<span class="dt">int</span> rt_application_init(<span class="dt">void</span>)
+{
+    <span class="co">/* 初始化消息队列 */</span>
+    rt_mq_init(&amp;mq, <span class="st">&quot;mqt&quot;</span>, 
+        &amp;msg_pool[<span class="dv">0</span>], <span class="co">/* 内存池指向msg_pool */</span>
+        <span class="dv">128</span> - <span class="kw">sizeof</span>(<span class="dt">void</span>*), <span class="co">/* 每个消息的大小是 128 - void* */</span>
+        <span class="kw">sizeof</span>(msg_pool),  <span class="co">/* 内存池的大小是msg_pool的大小 */</span>
+        RT_IPC_FLAG_FIFO); <span class="co">/* 如果有多个线程等待，按照FIFO的方法分配消息 */</span>
+
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>,
+        thread1_entry, <span class="co">/* 线程入口是thread1_entry */</span>
+        RT_NULL,       <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>,
+        thread2_entry, <span class="co">/* 线程入口是thread2_entry */</span>
+        RT_NULL,       <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="co">/* 创建线程3 */</span>
+    tid3 = rt_thread_create(<span class="st">&quot;t3&quot;</span>,
+        thread3_entry, <span class="co">/* 线程入口是thread3_entry */</span>
+        RT_NULL,       <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid3 != RT_NULL)
+        rt_thread_startup(tid3);
+    <span class="kw">else</span>
+        tc_stat(TC_STAT_END | TC_STAT_FAILED);
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h3 id="使用场合-6"><a href="#TOC">使用场合</a></h3>
+<p>消息队列可以应用于发送不定长消息的场合，包括线程与线程间的消息交换，以及中断服务例程中发送给线程的消息（中断服务例程不可能接收消息）。</p>
+<h4 id="典型使用"><a href="#TOC">典型使用</a></h4>
+<p>消息队列和邮箱的明显不同是消息的长度并不限定在4个字节以内，另外消息队列也包括了一个发送紧急消息的函数接口。但是当创建的是一个所有消息的最大长度是4字节的消息队列时，消息队列对象将蜕化成邮箱。 这个不限定长度的消息，也及时的反应到了代码编写的场合上，同样是类似邮箱的代码：</p>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="kw">struct</span> msg
+    {
+        rt_uint8_t *data_ptr;   <span class="co">/* 数据块首地址 */</span>
+        rt_uint32_t data_size;  <span class="co">/* 数据块大小      */</span>
+    };</code></pre>
+<p>和邮箱例子相同的消息结构定义，假设依然需要发送这么一个消息给接收线程。在邮箱例子中，这个结构只能够发送指向这个结构的指针（在函数指针被发送过去后，接收线程能够正确的访问指向这个地址的内容，通常这块数据需要留给接收线程来释放）。而使用消息队列的方式则大不相同：</p>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="dt">void</span> send_op(<span class="dt">void</span> *data, rt_size_t length)
+    {
+        <span class="kw">struct</span> msg msg_ptr;
+
+        msg_ptr.data_ptr = data;  <span class="co">/* 指向相应的数据块地址 */</span>
+        msg_ptr.data_size = length; <span class="co">/* 数据块的长度 */</span>
+
+        <span class="co">/* 发送这个消息指针给mq消息队列 */</span>
+        rt_mq_send(mq, (<span class="dt">void</span>*)&amp;msg_ptr, <span class="kw">sizeof</span>(<span class="kw">struct</span> msg));
+    }</code></pre>
+<p>注意，上面的代码中，是把一个局部变量的数据内容发送到了消息队列中。在接收线程中，同样也采用局部变量进行消息接收的结构体：</p>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="dt">void</span> message_handler()
+    {
+        <span class="kw">struct</span> msg msg_ptr; <span class="co">/* 用于放置消息的局部变量 */</span>
+
+        <span class="co">/* 从消息队列中接收消息到msg_ptr中 */</span>
+        <span class="kw">if</span> (rt_mq_recv(mq, (<span class="dt">void</span>*)&amp;msg_ptr, <span class="kw">sizeof</span>(<span class="kw">struct</span> msg)) == RT_EOK)
+        {
+            <span class="co">/* 成功接收到消息，进行相应的数据处理 */</span>
+        }
+    }</code></pre>
+<p>因为消息队列是直接的数据内容复制，所以在上面的例子中，都采用了局部变量的方式保存消息结构体，这样也就免去动态内存分配的烦恼了（也就不用担心，接收线程在接收到消息时，消息内存空间已经被释放）。</p>
+<h4 id="同步消息"><a href="#TOC">同步消息</a></h4>
+<p>在一般的系统设计中会经常遇到要发送同步消息的问题，这个时候就可以根据当时的状态选择相应的实现：两个线程间可以采用一个[消息队列+ 信号量]或邮箱的形式实现。 发送线程通过消息发送的形式发送相应的消息给消息队列，发送完毕后希望获得接收线程的收到确认，工作示意图如图6-10所示：</p>
+<p>图6-10 同步消息发送 根据消息确认的不同，可以把消息结构体定义成：</p>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="kw">struct</span> msg
+    {
+        <span class="co">/* 消息结构其他成员 */</span>
+        <span class="kw">struct</span> rt_mailbox ack;
+    };
+    <span class="co">/* 或者 */</span>
+    <span class="kw">struct</span> msg
+    {
+        <span class="co">/* 消息结构其他成员 */</span>
+        <span class="kw">struct</span> rt_semaphore ack;
+    };</code></pre>
+<p>第一种类型的消息使用了邮箱来作为确认标志，而第二种类型的消息采用了信号量来作为确认标志。邮箱做为确认标志，代表着接收线程能够通知一些状态值给发送线程；而信号量作为确认标志只能够单一的通知发送线程，消息已经确认接收。</p>
+<h1 id="内存管理"><a href="#TOC">内存管理</a></h1>
+<p>在计算系统中，变量、中间数据一般存放在系统存储空间中，只有在实际使用时才将它们从存储空间调入到中央处理器内部进行运算。通常存储空间可以分为两种：内部存储空间和外部存储空间。内部存储空间访问速度比较快，能够按照变量地址随机地访问，也就是我们通常所说的RAM（随机存储器），或电脑的内存；而外部存储空间内所保存的内容相对来说比较固定，即使掉电后数据也不会丢失，这就是通常所讲的ROM（只读存储器），也可以把它理解为电脑的硬盘。在这一章中我们主要讨论内部存储空间的管理。</p>
+<p>由于实时系统中对时间要求的严格性，内存分配往往要比通用操作系统要求苛刻得多。</p>
+<ul>
+<li>首先，分配内存的时间必须是确定的。一般内存管理算法是根据需要存储的数据的长度在内存中去寻找一个与这段数据相适应的空闲内存块，然后将数据存储在里面。而寻找这样一个空闲内存块所耗费的时间是不确定的，因此对于实时系统来说，这就是不可接受的，实时系统必须要保证内存块的分配过程在可预测的确定时间内完成，否则实时任务对外部事件的响应也将变得不可确定。</li>
+<li>其次，随着内存不断被分配和释放，整个内存区域会产生越来越多的碎片（因为在使用过程中，申请了一些内存，其中一些释放了，导致内存空间中存在一些小的内存块，它们地址不连续，不能够作为一块的大内存分配出去），系统中还有足够的空闲内存，但因为它们地址并非连续，不能组成一块连续的完整内存块，会使得程序不能申请到大的内存。对于通用系统而言，这种不恰当的内存分配算法可以通过重新启动系统来解决(每个月或者数个月进行一次)，但是对于那些需要常年不间断地工作于野外的嵌入式系统来说，就变得让人无法接受了。</li>
+<li>最后，嵌入式系统的资源环境也是不尽相同，有些系统的资源比较紧张，只有数十KB的内存可供分配，而有些系统则存在数MB的内存，如何为这些不同的系统，选择适合它们的高效率的内存分配算法，就将变得复杂化。</li>
+</ul>
+<p>RT-Thread操作系统在内存管理上，根据上层应用及系统资源的不同，有针对性的提供了不同的内存分配管理算法。总体上可分为两类：静态分区内存管理与动态内存管理，而动态内存管理又根据可用内存的多少划分为两种情况：一种是针对小内存块的分配管理（小内存管理算法），另一种是针对大内存块的分配管理（SLAB管理算法）。</p>
+<h2 id="静态内存池管理"><a href="#TOC">静态内存池管理</a></h2>
+<h3 id="静态内存池工作原理"><a href="#TOC">静态内存池工作原理</a></h3>
+<p>图7-1是内存池管理结构示意图。内存池（Memory Pool）是一种用于分配大量大小相同的小对象技术。它可以极大加快内存分配/释放的速度。</p>
+<p>内存池在创建时先向系统申请一大块内存，然后分成同样大小的多个小内存块，小内存块直接通过链表连接起来（此链表也称为空闲链表）。每次分配的时候，从空闲链表中取出链头上第一个内存块，提供给申请者。从图中可以看到，物理内存中允许存在多个大小不同的内存池，每一个内存池又由多个空闲内存块组成，内核用它们来进行内存管理。当一个内存池对象被创建时，内存池对象就被分配给了一个内存池控制块，内存控制块的参数包括内存池名，内存缓冲区，内存块大小，块数以及一个等待线程队列。</p>
+<p>内核负责给内存池分配内存池对象控制块，它同时也接收用户线程的分配内存块申请，当获得这些信息后，内核就可以从内存池中为内存池分配内存。内存池一旦初始化完成，内部的内存块大小将不能再做调整。</p>
+<h4 id="静态内存池控制块"><a href="#TOC">静态内存池控制块</a></h4>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> rt_mempool
+{
+    <span class="kw">struct</span> rt_object parent;
+
+    <span class="dt">void</span>        *start_address;<span class="co">/* 内存池数据区域开始地址   */</span>
+    rt_size_t   size;       <span class="co">/* 内存池数据区域大小    */</span>
+
+    rt_size_t   block_size; <span class="co">/* 内存块大小        */</span>
+    rt_uint8_t  *block_list;    <span class="co">/* 内存块列表        */</span>
+
+    <span class="co">/* 内存池数据区域中能够容纳的最大内存块数  */</span>
+    rt_size_t   block_total_count;
+    <span class="co">/* 内存池中空闲的内存块数      */</span>
+    rt_size_t   block_free_count;
+    <span class="co">/* 因为内存块不可用而挂起的线程列表 */</span>
+    rt_list_t   suspend_thread;
+    <span class="co">/* 因为内存块不可用而挂起的线程数      */</span>
+    rt_size_t   suspend_thread_count;
+};
+<span class="kw">typedef</span> <span class="kw">struct</span> rt_mempool* rt_mp_t;</code></pre>
+<p>每一个内存池对象由上述结构组成，其中suspend_thread形成了一个申请线程等待列表，即当内存池中无可用内存块时，并且申请线程允许等待，申请线程将挂起在suspend_thread链表上。</p>
+<h3 id="静态内存池接口"><a href="#TOC">静态内存池接口</a></h3>
+<h4 id="创建内存池"><a href="#TOC">创建内存池</a></h4>
+<p>创建内存池操作将会创建一个内存池对象并从堆上分配一个内存池。创建内存池是从对应内存池中分配和释放内存块的先决条件，创建内存池后，线程便可以从内存池中执行申请、释放等操作。创建内存池使用下面的函数接口，该函数返回一个已创建的内存池对象。</p>
+<pre><code>rt_mp_t rt_mp_create(const char* name, rt_size_t block_count, rt_size_t block_size);</code></pre>
+<p>使用该函数接口可以创建一个与需求的内存块大小、数目相匹配的内存池，前提当然是在系统资源允许的情况下（最主要的是动态堆内存资源）才能创建成功。创建内存池时，需要给内存池指定一个名称。然后内核从系统中申请一个内存池对象，然后从内存堆中分配一块由块数目和块大小计算得来的内存缓冲区，接着初始化内存池对象，并将申请成功的内存缓冲区组织成可用于分配的空闲块链表。</p>
+<p>参数：</p>
+<p>name - 内存池名；</p>
+<p>block_count - 内存块数量；</p>
+<p>block_size - 内存块容量。</p>
+<p>返回值：创建内存池对象成功，将返回内存池的句柄；否则返回RT_NULL。</p>
+<h4 id="删除内存池"><a href="#TOC">删除内存池</a></h4>
+<p>删除内存池将删除内存池对象并释放申请的内存。使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_mp_delete(rt_mp_t mp);</code></pre>
+<p>删除内存池时，会首先唤醒等待在该内存池对象上的所有线程（返回-RT_ERROR），然后再释放已从内存堆上分配的内存池数据存放区域，然后删除内存池对象。</p>
+<p>参数：</p>
+<p>mp - rt_mp_create返回的内存池对象句柄。</p>
+<p>返回值：</p>
+<p>返回RT_EOK</p>
+<h4 id="初始化内存池"><a href="#TOC">初始化内存池</a></h4>
+<p>初始化内存池跟创建内存池类似，只是初始化内存池用于静态内存管理模式，内存池控制块来源于用户在系统中申请的静态对象。另外与创建内存池不同的是，此处内存池对象所使用的内存空间是由用户指定的一个缓冲区空间，用户把缓冲区的指针传递给内存池对象控制块，其余的初始化工作与创建内存池相同。函数接口如下： rt_err_t rt_mp_init(rt_mp_t mp, const char* name, void *start, rt_size_t size, rt_size_t block size);</p>
+<p>初始化内存池时，把需要进行初始化的内存池对象传递给内核，同时需要传递的还有内存池用到的内存空间，以及内存池管理的内存块数目和块大小，并且给内存池指定一个名称。这样，内核就可以对该内存池进行初始化，将内存池用到的内存空间组织成可用于分配的空闲块链表。</p>
+<p>参数：</p>
+<p>mp - 内存池对象；</p>
+<p>name - 内存池名；</p>
+<p>start - 内存池的起始位置；</p>
+<p>size - 内存池数据区域大小；</p>
+<p>block_size - 内存块容量。</p>
+<p>返回值：</p>
+<p>初始化成功返回RT_OK；否则返回-RT_ERROR。</p>
+<h4 id="脱离内存池"><a href="#TOC">脱离内存池</a></h4>
+<p>脱离内存池将把内存池对象从内核对象管理器中删除。脱离内存池使用下面的函数接口：</p>
+<pre><code>rt_err_t rt_mp_detach(rt_mp_t mp);</code></pre>
+<p>使用该函数接口后，内核先唤醒所有等待在该内存池对象上的线程，然后将内存池对象从内核对象管理器中删除。</p>
+<p>参数：</p>
+<p>mp - 内存池对象。</p>
+<p>返回值：</p>
+<p>返回RT_EOK。</p>
+<h4 id="分配内存块"><a href="#TOC">分配内存块</a></h4>
+<p>从指定的内存池中分配一个内存块，使用如下接口： void *rt_mp_alloc (rt_mp_t mp, rt_int32_t time);</p>
+<p>如果内存池中有可用的内存块，则从内存池的空闲块链表上取下一个内存块，减少空闲块数目并返回这个内存块；如果内存池中已经没有空闲内存块，则判断超时时间设置：若超时时间设置为零，则立刻返回空内存块；若等待时间大于零，则把当前线程挂起在该内存池对象上，直到内存池中有可用的自由内存块，或等待时间到达。</p>
+<p>参数： mp - 内存池对象； time - 超时时间。 返回值： 无</p>
+<p>释放内存块 任何内存块使用完后都必须被释放，否则会造成内存泄露，释放内存块使用如下接口： void rt_mp_free (void *block);</p>
+<p>使用该函数接口时，首先通过需要被释放的内存块指针计算出该内存块所在的（或所属于的）内存池对象，然后增加内存池对象的可用内存块数目，并把该被释放的内存块加入空闲内存块链表上。接着判断该内存池对象上是否有挂起的线程，如果有，则唤醒挂起线程链表上的首线程。</p>
+<p>参数： block - 内存块指针。 返回值： 无</p>
+<p>例7-1 内存池使用示例</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：内存池例程</span>
+<span class="co"> * 这个程序会创建一个静态的内存池对象，2个动态线程。</span>
+<span class="co"> * 两个线程会试图分别从内存池中获得内存块</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="dt">static</span> rt_uint8_t *ptr[<span class="dv">48</span>];
+<span class="dt">static</span> rt_uint8_t mempool[<span class="dv">4096</span>];
+<span class="dt">static</span> <span class="kw">struct</span> rt_mempool mp; <span class="co">/* 静态内存池对象 */</span>
+
+<span class="co">/* 指向线程控制块的指针 */</span>
+<span class="dt">static</span> rt_thread_t tid1 = RT_NULL;
+<span class="dt">static</span> rt_thread_t tid2 = RT_NULL;
+
+<span class="co">/* 线程1入口 */</span>
+<span class="dt">static</span> <span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="dt">int</span> i;
+    <span class="dt">char</span> *block;
+
+    <span class="kw">while</span>(<span class="dv">1</span>)
+    {
+        <span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; <span class="dv">48</span>; i++)
+        {
+            <span class="co">/* 申请内存块 */</span>
+            rt_kprintf(<span class="st">&quot;allocate No.%d</span><span class="ch">\n</span><span class="st">&quot;</span>, i);
+            <span class="kw">if</span> (ptr[i] == RT_NULL)
+            {
+                ptr[i] = rt_mp_alloc(&amp;mp, RT_WAITING_FOREVER);
+            }
+        }
+
+        <span class="co">/* 继续申请一个内存块，因为已经没有内存块，线程应该被挂起 */</span>
+        block = rt_mp_alloc(&amp;mp, RT_WAITING_FOREVER);
+        rt_kprintf(<span class="st">&quot;allocate the block mem</span><span class="ch">\n</span><span class="st">&quot;</span>);
+        <span class="co">/* 释放这个内存块 */</span>
+        rt_mp_free(block);
+        block = RT_NULL;
+    }
+}
+
+<span class="co">/* 线程2入口，线程2的优先级比线程1低，应该线程1先获得执行。*/</span>
+<span class="dt">static</span> <span class="dt">void</span> thread2_entry(<span class="dt">void</span> *parameter)
+{
+    <span class="dt">int</span> i;
+
+    <span class="kw">while</span>(<span class="dv">1</span>)
+    {
+        rt_kprintf(<span class="st">&quot;try to release block</span><span class="ch">\n</span><span class="st">&quot;</span>);
+
+        <span class="kw">for</span> (i = <span class="dv">0</span> ; i &lt; <span class="dv">48</span>; i ++)
+        {
+            <span class="co">/* 释放所有分配成功的内存块 */</span>
+            <span class="kw">if</span> (ptr[i] != RT_NULL)
+            {
+                rt_kprintf(<span class="st">&quot;release block %d</span><span class="ch">\n</span><span class="st">&quot;</span>, i);
+
+                rt_mp_free(ptr[i]);
+                ptr[i] = RT_NULL;
+            }
+        }
+
+        <span class="co">/* 休眠10个OS Tick */</span>
+        rt_thread_delay(<span class="dv">10</span>);
+    }
+}
+
+<span class="co">/* 用户应用入口 */</span>
+<span class="dt">int</span> rt_application_init()
+{
+    <span class="dt">int</span> i;
+    <span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; <span class="dv">48</span>; i ++) ptr[i] = RT_NULL;
+
+    <span class="co">/* 初始化内存池对象 */</span>
+    rt_mp_init(&amp;mp, <span class="st">&quot;mp1&quot;</span>, &amp;mempool[<span class="dv">0</span>], <span class="kw">sizeof</span>(mempool), <span class="dv">80</span>);
+
+    <span class="co">/* 创建线程1 */</span>
+    tid1 = rt_thread_create(<span class="st">&quot;t1&quot;</span>,
+        thread1_entry, <span class="co">/* 线程入口是thread1_entry */</span>
+        RT_NULL,    <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid1 != RT_NULL)
+        rt_thread_startup(tid1);
+
+    <span class="co">/* 创建线程2 */</span>
+    tid2 = rt_thread_create(<span class="st">&quot;t2&quot;</span>,
+        thread2_entry,  <span class="co">/* 线程入口是thread2_entry */</span>
+        RT_NULL,        <span class="co">/* 入口参数是RT_NULL */</span>
+        THREAD_STACK_SIZE, THREAD_PRIORITY + <span class="dv">1</span>, THREAD_TIMESLICE);
+    <span class="kw">if</span> (tid2 != RT_NULL)
+        rt_thread_startup(tid2);
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h2 id="动态内存管理"><a href="#TOC">动态内存管理</a></h2>
+<p>动态内存管理是一个真实的堆（Heap）内存管理模块，可以在当前资源满足的情况下，根据用户的需求分配任意大小的内存块。而当用户不需要再使用这些内存块时，又可以释放回堆中供其他应用分配使用。RT-Thread系统为了满足不同的需求，提供了两套不同的动态内存管理算法，分别是小堆内存管理算法和SLAB内存管理算法。</p>
+<p>小堆内存管理模块主要针对系统资源比较少，一般用于小于2M内存空间的系统；而SLAB内存管理模块则主要是在系统资��比较丰富时，提供了一种近似多内存池管理算法的快速算法。两种内存管理模块在系统运行时只能选择其中之一或者完全不使用动态堆内存管理器。这两种管理模块提供的API接口完全相同。</p>
+<p>警告：因为动态内存管理器要满足多线程情况下的安全分配，会考虑多线程间的互斥问题，所以请不要在中断服务例程中分配或释放动态内存块。因为它可能会引起当前上下文被挂起等待。</p>
+<h3 id="小内存管理模块"><a href="#TOC">小内存管理模块</a></h3>
+<p>小内存管理算法是一个简单的内存分配算法。初始时，它是一块大的内存。当需要分配内存块时，将从这个大的内存块上分割出相匹配的内存块，然后把分割出来的空闲内存块还回给堆管理系统中。每个内存块都包含一个管理用的数据头，通过这个头把使用块与空闲块用双向链表的方式链接起来，如图7-2所示：</p>
+<p>每个内存块（不管是已分配的内存块还是空闲的内存块）都包含一个数据头，其中包括：</p>
+<p>magic – 变数（或称为幻数），它会被初始化成0x1ea0（即英文单词heap），用于标记这个内存块是一个内存管理用的内存数据块；</p>
+<p>used - 指示出当前内存块是否已经分配。</p>
+<p>magic变数不仅仅用于标识这个数据块是一个内存管理用的内存数据块，实质也是一个内存保护字：如果这个区域被改写，那么也就意味着这块内存块被非法改写（正常情况下只有内存管理器才会去碰这块内存）。</p>
+<p>内存管理的在表现主要体现在内存的分配与释放上，小型内存管理算法可以用以下例子体现出来。</p>
+<p>如图7-3所示的内存分配情况，空闲链表指针lfree初始指向32字节的内存块。当用户线程要再分配一个64字节的内存块时，但此lfree指针指向的内存块只有32字节并不能满足要求，内存管理器会继续寻找下一内存块，当找到再下一块内存块，128字节时，它满足分配的要求。因为这个内存块比较大，分配器将把此内存块进行拆分，余下的内存块（52字节）继续留在lfree链表中，如下图7-4所示。</p>
+<p>另外，在每次分配内存块前，都会留出12字节数据头用于magic，used信息及链表节点使用。返回给应用的地址实际上是这块内存块12字节以后的地址，前面的12字节数据头是用户永远不应该碰的部分。（注：12字节数据头长度会与系统对齐差异而有所不同）</p>
+<p>释放时则是相反的过程，但分配器会查看前后相邻的内存块是否空闲，如果空闲则合并成一个大的空闲内存块。</p>
+<h3 id="slab内存管理模块"><a href="#TOC">SLAB内存管理模块</a></h3>
+<p>RT-Thread的SLAB分配器是在DragonFly BSD创始人Matthew Dillon实现的SLAB分配器基础上，针对嵌入式系统优化的内存分配算法。最原始的SLAB算法是Jeff Bonwick为Solaris 操作系统而引入的一种高效内核内存分配算法。</p>
+<p>RT-Thread的SLAB分配器实现主要是去掉了其中的对象构造及析构过程，只保留了纯粹的缓冲型的内存池算法。SLAB分配器会根据对象的类型（主要是大小）分成多个区（zone），也可以看成每类对象有一个内存池，如图7-4所示：</p>
+<p>一个zone的大小在32k ～ 128k字节之间，分配器会在堆初始化时根据堆的大小自动调整。系统中最多包括72种对象的zone，最大能够分配16k的内存空间，如果超出了16k那么直接从页分配器中分配。每个zone上分配的内存块大小是固定的，能够分配相同大小内存块的zone会链接在一个链表中，而72种对象的zone链表则放在一个数组（zone arry）中统一管理。</p>
+<p>下面是动态内存分配器主要的两种操作：</p>
+<ul>
+<li>内存分配： 假设分配一个32字节的内存，SLAB内存分配器会先按照32字节的值，从zone array链表表头数组中找到相应的zone链表。如果这个链表是空的，则向页分配器分配一个新的zone，然后从zone中返回第一个空闲内存块。如果链表非空，则这个zone链表中的第一个zone节点必然有空闲块存在（否则它就不应该放在这个链表中），那么就取相应的空闲块。如果分配完成后，zone中所有空闲内存块都使用完毕，那么分配器需要把这个zone节点从链表中删除。</li>
+<li>内存释放：分配器需要找到内存块所在的zone节点，然后把内存块链接到zone的空闲内存块链表中。如果此时zone的空闲链表指示出zone的所有内存块都已经释放，即zone是完全空闲的，那么当zone链表中全空闲zone达到一定数目后，系统就会把这个全空闲的zone释放到页面分配器中去。</li>
+</ul>
+<h3 id="动态内存接口"><a href="#TOC">动态内存接口</a></h3>
+<h4 id="初始化系统堆空间"><a href="#TOC">初始化系统堆空间</a></h4>
+<p>在使用堆内存时，必须要在系统初始化的时候进行堆内存的初始化，可以通过下面的函数接口完成：</p>
+<pre><code>void rt_system_heap_init(void* begin_addr, void* end_addr);</code></pre>
+<p>这个函数会把参数begin_addr，end_addr区域的内存空间作为内存堆来使用。</p>
+<p>参数： begin_addr - 堆内存区域起始地址； end_addr - 堆内存区域结束地址。</p>
+<p>返回值： 无</p>
+<h4 id="分配内存块-1"><a href="#TOC">分配内存块</a></h4>
+<p>从内存堆上分配用户指定大小的内存块，函数接口如下：</p>
+<pre><code>void* rt_malloc(rt_size_t nbytes);</code></pre>
+<p>rt_malloc函数会从系统堆空间中找到合适大小的内存块，然后把内存块可用地址返回给用户。</p>
+<p>参数： nbytes - 申请的内存大小。</p>
+<p>返回值： 成功时返回分配的内存块地址，失败时返回RT_NULL。</p>
+<h4 id="重分配内存块"><a href="#TOC">重分配内存块</a></h4>
+<p>在已分配内存块的基础上重新分配内存块的大小（增加或缩小），可以通过下面的函数接口完成：</p>
+<pre><code>void *rt_realloc(void *rmem, rt_size_t newsize);</code></pre>
+<p>在进行重新分配内存块时，原来的内存块数据保持不变（缩小的情况下，后面的数据被自动截断）。</p>
+<p>参数： rmem - 指向的已分配的内存块； newsize - 重新分配的内存大小。 返回值： 返回重新分配的内存块地址；</p>
+<h4 id="分配多内存块"><a href="#TOC">分配多内存块</a></h4>
+<p>从内存堆中分配连续内存地址的多个内存块，可以通过下面的函数接口完成：</p>
+<pre><code>void *rt_calloc(rt_size_t count, rt_size_t size);</code></pre>
+<p>参数： count - 内存块数量； size - 内存块容量。</p>
+<p>返回值：</p>
+<p>返回的指针指向第一个内存块的地址，并且所有分配的内存块都被初始化成零。</p>
+<h4 id="释放内存块"><a href="#TOC">释放内存块</a></h4>
+<p>用户线程使用完从内存分配器中申请的内存后，必须及时释放，否则会造成内存泄漏，释放内存块的函数接口如下：</p>
+<pre><code>void rt_free (void *ptr);</code></pre>
+<p>rt_free函数会把待释放的内存换回给堆管理器中。在调用这个函数时用户需传递待释放的内存块指针，如果是空指针直接返回。</p>
+<p>参数： ptr - 待释放的内存块指针。 返回值： 无</p>
+<h4 id="设置分配钩子函数"><a href="#TOC">设置分配钩子函数</a></h4>
+<p>在分配内存块过程中，用户可设置一个钩子函数，调用的函数接口如下：</p>
+<pre><code>void rt_malloc_sethook(void (*hook)(void *ptr, rt_size_t size));</code></pre>
+<p>设置的钩子函数会在内存分配完成后进行回调。回调时，会把分配到的内存块地址和大小做为入口参数传递进去。</p>
+<p>参数： hook - 钩子函数指针； ptr - 待分配的内存块指针； size - 内存块容量。 返回值： 无</p>
+<h4 id="设置内存释放钩子函数"><a href="#TOC">设置内存释放钩子函数</a></h4>
+<p>在释放内存时，用户可设置一个钩子函数，调用的函数接口如下：</p>
+<pre><code>void rt_free_sethook(void (*hook)(void *ptr));</code></pre>
+<p>设置的钩子函数会在调用内存释放完成前进行回调。回调时，释放的内存块地址会做为入口参数传递进去（此时内存块并没有被释放）。</p>
+<p>参数： hook - 钩子函数指针； ptr - 待释放的内存块指针。 返回值： 无</p>
+<p>例7-2 动态内存堆使用示例</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/* 线程TCB和栈*/</span>
+<span class="kw">struct</span> rt_thread_t thread1;
+<span class="dt">char</span> thread1_stack[<span class="dv">512</span>];
+
+<span class="co">/* 线程入口*/</span>
+<span class="dt">void</span> thread1_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="dt">int</span> i;
+    <span class="dt">char</span> *ptr[<span class="dv">20</span>]; <span class="co">/* 用于放置20个分配内存块的指针*/</span>
+
+    <span class="co">/* 对指针清零*/</span>
+    <span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; <span class="dv">20</span>; i ++) ptr[i] = RT_NULL;
+
+    <span class="kw">while</span>(<span class="dv">1</span>)
+    {
+        <span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; <span class="dv">20</span>; i++)
+        {
+            <span class="co">/* 每次分配(1 &lt;&lt; i)大小字节数的内存空间*/</span>
+            ptr[i] = rt_malloc(<span class="dv">1</span> &lt;&lt; i);
+
+            <span class="co">/* 如果分配成功*/</span>
+            <span class="kw">if</span> (ptr[i] != RT_NULL)
+            {
+                rt_kprintf(<span class="st">&quot;get memory: 0x%x</span><span class="ch">\n</span><span class="st">&quot;</span>, ptr[i]);
+                <span class="co">/* 释放内存块*/</span>
+                rt_free(ptr[i]);
+                ptr[i] = RT_NULL;
+            }
+        }
+    }
+}
+
+<span class="dt">int</span> rt_application_init()
+{
+    rt_err_t result;
+
+    <span class="co">/* 初始化线程对象*/</span>
+    result = rt_thread_init(&amp;thread1,
+        <span class="st">&quot;thread1&quot;</span>,
+        thread1_entry, RT_NULL,
+        &amp;thread1_stack[<span class="dv">0</span>], <span class="kw">sizeof</span>(thread1_stack),
+        <span class="dv">200</span>, <span class="dv">100</span>);
+
+    <span class="kw">if</span> (result == RT_EOK)
+        rt_thread_startup(&amp;thread1);
+
+    <span class="kw">return</span> <span class="dv">0</span>;
+}</code></pre>
+<h1 id="io设备管理"><a href="#TOC">I/O设备管理</a></h1>
+<p>绝大部分的嵌入式系统都包括一些输入输出(I/O)设备，例如仪器上的数据显示，工业设备上的串口通信，数据采集设备上用于保存数据的flash或SD卡，以及网络设备的以太网接口都是嵌入式系统中容易找到的I/O设备例子。嵌入式系统通常都是针对具有专有特殊需求的设备而设计的，例如移动电话、MP3播放器就是典型地为处理I/O设备而建造的嵌入式系统例子。</p>
+<p>在RT-Thread实时操作系统中，RT-Thread提供了一套简单的I/O设备管理框架，如图10-1所示，它把I/O设备分成了三层进行处理：</p>
+<p>图10-1 RT-Thread I/O设备结构</p>
+<p>应用程序通过RT-Thread的设备操作接口获得正确的设备驱动，然后通过这个设备驱动与底层I/O硬件设备进行数据（或控制）交互。RT-Thread提供给上层应用的是一个抽象的设备接口，给下层设备提供的是底层驱动框架。从系统整体位置来说I/O设备模块相当于设备驱动程序和上层应用之间的一个中间层。</p>
+<p>I/O设备模块实现了对设备驱动程序的封装。应用程序通过I/O设备模块提供的标准接口访问底层设备，设备驱动程序的升级、更替不会对上层应用产生影响。这种方式使得设备的硬件操作相关的代码能够独立于应用程序而存在，双方只需关注各自的功能实现，从而降低了代码的耦合性、复杂性，提高了系统的可靠性。</p>
+<p>RT-Thread的设备模型是建立在内核对象模型基础之上的。在第4章中我们已经介绍过RT-Thread的内核对象管理器，读者若对这部分还不太了解，可以再回顾下这一章节。在RT-Thread中，设备也被认为是一类对象，被纳入对象管理器的范畴。每个设备对象都是由基对象派生而来，每个具体设备都可以继承其父类对象的属性，并派生出其私有属性。图10-2是设备对象的继承和派生关系示意图。</p>
+<p>图10-2 设备继承关系图</p>
+<h2 id="块设备"><a href="#TOC">块设备</a></h2>
+<p>在传统操作系统中一般将I/O设备分成字符设备、块设备和网络接口，分类的依据是设备数据与系统之间的传输处理方式。</p>
+<p>字符模式设备允许非结构的数据传输，即通常数据传输采用串行的形式，每次一个字节。字符设备通常是一些简单设备，如串口、按键。</p>
+<p>块设备每次传输一个数据块，例如每次传输512个字节数据。这个数据块是硬件强制性的，数据块可能使用某类数据接口或某些强制性的传输协议，否则就可能发生错误。因此，有时块设备驱动程序对读或写操作必须执行附加的工作，如图10-3所示。</p>
+<p>图10-3 块设备</p>
+<p>当系统服务于一个具有大量数据的写操作时，设备驱动程序必须首先将数据划分为多个包，每个包采用设备指定的数据尺寸。而在实际过程中，最后一部分数据尺寸有可能小于正常的设备块尺寸。如图10-3中每个块使用单独的写请求写入到设备中，头3个直接进行写操作。但最后一个数据块尺寸小于设备块尺寸，设备驱动程序必须使用不同于前3个块的方式处理最后的数据块。通常情况下，设备驱动程序需要首先执行相对应的设备块的读操作，然后把写入数据覆盖到读出数据上，然后再把这个“合成”的数据块做为一整个块写回到设备中。例如图10-3中的块4，驱动程序需要先把块4所对应的设备块读出来，然后将需要写入的数据覆盖至从设备块读出的数据上，使其合并成一个新的块，最后再写回到块设备中。</p>
+<h2 id="io设备控制块"><a href="#TOC">I/O设备控制块</a></h2>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> rt_device
+{
+  <span class="kw">struct</span> rt_object parent;
+
+    <span class="co">/* 设备类型 */</span>
+    <span class="kw">enum</span> rt_device_class_type type;
+    <span class="co">/* 设备参数及打开参数 */</span>
+    rt_uint16_t flag, open_flag;
+
+    <span class="co">/* 提供给上层应用的回调函数 */</span>
+    rt_err_t (*rx_indicate)(rt_device_t dev, rt_size_t size);
+    rt_err_t (*tx_complete)(rt_device_t dev, <span class="dt">void</span>* buffer);
+
+    <span class="co">/* 公共的设备接口(由驱动程序提供) */</span>
+    rt_err_t  (*init)   (rt_device_t dev);
+    rt_err_t  (*open)   (rt_device_t dev, rt_uint16_t oflag);
+    rt_err_t  (*close)(rt_device_t dev);
+    rt_size_t (*read)   (rt_device_t dev, rt_off_t pos, <span class="dt">void</span>* buffer, rt_size_t size);
+    rt_size_t (*write)(rt_device_t dev, rt_off_t pos, <span class="dt">const</span> <span class="dt">void</span>* buffer, rt_size_t size);
+    rt_err_t  (*control)(rt_device_t dev, rt_uint8_t cmd, <span class="dt">void</span> *args);
+
+    <span class="co">/* 用于支持电源管理的函数接口 */</span>
+<span class="ot">#ifdef RT_USING_DEVICE_SUSPEND</span>
+    rt_err_t (*suspend) (rt_device_t dev);
+    rt_err_t (*resumed) (rt_device_t dev);
+<span class="ot">#endif</span>
+
+    <span class="co">/* 设备的私有数据 */</span>
+    <span class="dt">void</span>* user_data;
+};
+<span class="kw">typedef</span> <span class="kw">struct</span> rt_device* rt_device_t;</code></pre>
+<p>当前RT-Thread支持的设备类型包括：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">enum</span> rt_device_class_type
+{
+    RT_Device_Class_Char = <span class="dv">0</span>,   <span class="co">/* 字符设备     */</span>
+    RT_Device_Class_Block,      <span class="co">/* 块设备  */</span>
+    RT_Device_Class_NetIf,      <span class="co">/* 网络接口     */</span>
+    RT_Device_Class_MTD,        <span class="co">/* 内存设备 */</span>
+    RT_Device_Class_CAN,        <span class="co">/* CAN设备    */</span>
+    RT_Device_Class_RTC,        <span class="co">/* RTC设备    */</span>
+    RT_Device_Class_Sound,      <span class="co">/* 声音设备 */</span>
+    RT_Device_Class_Display,    <span class="co">/* 显示设备     */</span>
+    RT_Device_Class_Unknown     <span class="co">/* 未知设备 */</span>
+};</code></pre>
+<p>注： suspend、resume回调函数只会在RT_USING_DEVICE_SUSPEND宏使能的情况下才会有效。 从设备控制块，我们可以看到，每个设备对象都会在内核中维护一个设备控制块结构，这种结构是使设备对象继承rt_object基类，然后形成rt_device设备类型。</p>
+<h2 id="io设备管理接口"><a href="#TOC">I/O设备管理接口</a></h2>
+<h3 id="注册设备"><a href="#TOC">注册设备</a></h3>
+<p>一个设备能够被上层应用访问前，需要先把这个设备注册到系统中，并添加一些相应的属性。这些注册的设备均可以通过设备名，采用“查找设备接口”的方式来查找，从而获得该设备控制块（或设备句柄）。注册设备的函数接口如下：</p>
+<pre><code>rt_err_t rt_device_register(rt_device_t dev, const char* name, rt_uint8_t flags);</code></pre>
+<p>参数： dev - 设备句柄； name - 设备名称； flag - 设备模式标志：</p>
+<p>flags参数支持下列参数(可以采用或的方式支持多种参数)：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_DEVICE_FLAG_DEACTIVATE   0x000    </span><span class="co">/* 未初始化设备      */</span>
+<span class="ot">#define RT_DEVICE_FLAG_RDONLY       0x001    </span><span class="co">/* 只读设备            */</span>
+<span class="ot">#define RT_DEVICE_FLAG_WRONLY       0x002    </span><span class="co">/* 只写设备            */</span>
+<span class="ot">#define RT_DEVICE_FLAG_RDWR         0x003    </span><span class="co">/* 读写设备            */</span>
+<span class="ot">#define RT_DEVICE_FLAG_REMOVABLE    0x004    </span><span class="co">/* 可移除设备       */</span>
+<span class="ot">#define RT_DEVICE_FLAG_STANDALONE   0x008    </span><span class="co">/* 独立设备            */</span>
+<span class="ot">#define RT_DEVICE_FLAG_ACTIVATED    0x010    </span><span class="co">/* 已激活设备       */</span>
+<span class="ot">#define RT_DEVICE_FLAG_SUSPENDED    0x020    </span><span class="co">/* 挂起设备            */</span>
+<span class="ot">#define RT_DEVICE_FLAG_STREAM       0x040    </span><span class="co">/* 设备处于流模式     */</span>
+<span class="ot">#define RT_DEVICE_FLAG_INT_RX       0x100    </span><span class="co">/* 设备处于中断接收模式  */</span>
+<span class="ot">#define RT_DEVICE_FLAG_DMA_RX       0x200    </span><span class="co">/* 设备处于DMA接收模式 */</span>
+<span class="ot">#define RT_DEVICE_FLAG_INT_TX       0x400    </span><span class="co">/* 设备处于中断发送模式  */</span>
+<span class="ot">#define RT_DEVICE_FLAG_DMA_TX       0x800    </span><span class="co">/* 设备处于DMA发送模式 */</span></code></pre>
+<p>设备流模式RT_DEVICE_FLAG_STREAM参数用于向串口终端输出字符串：当输出的字符是&quot;\n&quot;时，自动在前面补一个&quot;\r&quot;做分行。</p>
+<p>返回值：返回RT_EOK</p>
+<p>警告：应当避免重复注册已经注册的设备，以及注册已有名字的设备驱动程序。</p>
+<h3 id="卸载设备"><a href="#TOC">卸载设备</a></h3>
+<p>将设备从设备系统中卸载，被卸载的设备将不能再通过“查找设备接口”被查找到。卸载设备的函数接口如下所示：</p>
+<pre><code>rt_err_t rt_device_unregister(rt_device_t dev)</code></pre>
+<p>参数： dev - 设备句柄； 返回值： 返回RT_EOK</p>
+<p>注： 卸载设备并不会释放设备控制块所占用的内存。</p>
+<h3 id="初始化所有设备"><a href="#TOC">初始化所有设备</a></h3>
+<p>初始化所有注册到设备对象管理器中的未初始化的设备，可以通过如下函数接口完成：</p>
+<pre><code>rt_err_t rt_device_init_all(void)</code></pre>
+<p>参数：无 返回值： 返回RT_EOK</p>
+<p>注： 此函数将逐渐废弃，不推荐在应用程序中调用。当一个设备初始化完成后它的flags域中的RT_DEVICE_FLAG_ACTIVATED应该被置位。如果设备的flags域已经是RT_DEVICE_FLAG_ACTIVATED，调用这个接口将不再重复做初始化。</p>
+<h3 id="查找设备"><a href="#TOC">查找设备</a></h3>
+<p>根据指定的设备名称来查找设备，可以通过如下接口完成：</p>
+<pre><code>rt_device_t rt_device_find(const char* name)</code></pre>
+<p>使用这个函数接口时，系统会在设备对象类型所对应的对象容器中遍历寻找设备对象，然后返回该设备，如果没有找到相应的设备对象，则返回RT_NULL。</p>
+<p>参数： name - 设备名称。 返回值： 查找到对应设备将返回相应的设备对象；否则返回RT_NULL</p>
+<h3 id="打开设备"><a href="#TOC">打开设备</a></h3>
+<p>根据设备控制块来打开设备，可以通过如下函数接口完成：</p>
+<pre><code>rt_err_t rt_device_open (rt_device_t dev, rt_uint16_t oflags)</code></pre>
+<p>参数： dev - 设备句柄； oflags - 访问模式。 其中oflags支持以下列表中的参数：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define RT_DEVICE_OFLAG_RDONLY      0x001       </span><span class="co">/* 只读模式访问   */</span>
+<span class="ot">#define RT_DEVICE_OFLAG_WRONLY      0x002       </span><span class="co">/* 只写模式访问   */</span>
+<span class="ot">#define RT_DEVICE_OFLAG_RDWR        0x003       </span><span class="co">/* 读写模式访问   */</span></code></pre>
+<p>返回值： 返回驱动的open函数返回值</p>
+<p>注： 如果设备flags域包含RT_DEVICE_FLAG_STANDALONE参数，将不允许重复打开。</p>
+<h3 id="关闭设备"><a href="#TOC">关闭设备</a></h3>
+<p>根据设备控制块来关闭设备，可以通过如下函数接口完成：</p>
+<pre><code>rt_err_t rt_device_close(rt_device_t dev)</code></pre>
+<p>参数： dev - 设备句柄； 返回值： 返回驱动的close函数返回值</p>
+<h3 id="读设备"><a href="#TOC">读设备</a></h3>
+<p>根据设备控制块来读取设备，可以通过如下函数接口完成：</p>
+<pre><code>rt_size_t rt_device_read (rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size)</code></pre>
+<p>根据底层驱动的实现，通常这个接口并不会阻塞上层应用线程。</p>
+<p>参数： dev - 设备句柄； pos - 读取数据偏移量； buffer - 内存缓冲区指针； size - 读取数据的大小。 返回值： 返回读到数据的实际大小(以字节为单位)；如果返回0，则需要读取当前线程的errno来判断错误状态。</p>
+<h3 id="写设备"><a href="#TOC">写设备</a></h3>
+<p>根据设备控制块来写入设备，可以通过如下函数接口完成：</p>
+<pre><code>rt_size_t rt_device_write(rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size)</code></pre>
+<p>根据底层驱动的实现，通常这个接口也不会阻塞上层应用线程。</p>
+<p>参数： dev - 设备句柄； pos - 写入数据偏移量； buffer - 内存缓冲区指针； size - 写入数据大小。 返回值： 返回写入数据的实际大小(以字节为单位)；如果返回0，则需要读取当前线程的errno来判断错误状态。</p>
+<p>注： 在RT-Thread的块设备中，从1.0.0版本开始，rt_device_write()接口的pos、size参数按照以块为单位。0.3.x以前的版本则按字节为单位。</p>
+<h3 id="控制设备"><a href="#TOC">控制设备</a></h3>
+<p>根据设备控制块来控制设备，可以通过下面的函数接口完成：</p>
+<pre><code>rt_err_t rt_device_control(rt_device_t dev, rt_uint8_t cmd, void* arg)</code></pre>
+<p>参数： dev - 设备句柄； cmd - 命令控制字，这个参数通常与设备驱动程序相关； arg - 控制的参数 返回值： 返回驱动控制接口的返回值</p>
+<h3 id="设置数据接收指示"><a href="#TOC">设置数据接收指示</a></h3>
+<p>设置一个回调函数，当硬件设备收到数据时回调以通知用程序有数据到达。可以通过如下函数接口完成设置接收指示：</p>
+<pre><code>rt_err_t rt_device_set_rx_indicate(rt_device_t dev, rt_err_t (*rx_ind )(rt_device_t dev,rt_size_t size))</code></pre>
+<p>在调用这个函数时，回调函数rx_ind由调用者提供。当硬件设备接收到数据时，会回调这个函数并把收到的数据长度放在size参数中传递给上层应用。上层应用线程应在收到指示后，立刻从设备中读取数据。</p>
+<p>参数： dev - 设备句柄； rx_ind - 接收回调函数。 返回值： RT_EOK</p>
+<h3 id="设置发送完成指示"><a href="#TOC">设置发送完成指示</a></h3>
+<p>在上层应用调用rt_device_write写入数据时，如果底层硬件能够支持自动发送，那么上层应用可以设置一个回调函数。这个回调函数会在底层硬件给出的发送完成后(例如DMA传送完成或FIFO已经写入完毕产生完成中断时)被调用。可以通过如下函数接口设置设备发送完成指示：</p>
+<pre><code>rt_err_t rt_device_set_tx_complete(rt_device_t dev, rt_err_t (*tx_done)(rt_device_t dev,void *buffer))</code></pre>
+<p>调用这个函数时，回调函数tx_done参数由调用者提供，当硬件设备发送完数据时，由驱动程序回调这个函数并把发送完成的数据块地址buffer做为参数传递给上层应用。上层应用（线程）在收到指示时应根据发送buffer的情况，释放buffer内存块或将其做为下一个写数据的缓存。</p>
+<p>参数： dev - 设备句柄； tx_done - 发送回调函数。 返回值： RT_EOK</p>
+<h2 id="设备驱动"><a href="#TOC">设备驱动</a></h2>
+<p>上一节说到了如何使用RT-Thread的设备接口，但对于底层来说，如何编写一个设备驱动程序可能会更为重要，这节将详细描述如何编写一个设备驱动程序，并以STM32上的一个串口设备为例子进行说明。</p>
+<h3 id="设备驱动必须实现的接口"><a href="#TOC">设备驱动必须实现的接口</a></h3>
+<p>在10.1节中提及了RT-Thread设备接口类，我们着重看看其中包含的一套公共设备接口(类似上节说的设备访问接口，但面向的层次已经不一样，这里是面向底层驱动)：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/* 公共的设备接口(由驱动程序提供) */</span>
+rt_err_t  (*init)   (rt_device_t dev);
+rt_err_t  (*open)   (rt_device_t dev, rt_uint16_t oflag);
+rt_err_t  (*close)(rt_device_t dev);
+rt_size_t (*read)   (rt_device_t dev, rt_off_t pos, <span class="dt">void</span>* buffer, rt_size_t size);
+rt_size_t (*write)(rt_device_t dev, rt_off_t pos, <span class="dt">const</span> <span class="dt">void</span>* buffer, rt_size_t size);
+rt_err_t  (*control)(rt_device_t dev, rt_uint8_t cmd, <span class="dt">void</span> *args);
+
+<span class="co">/* 用于支持电源管理的函数接口 */</span>
+<span class="ot">#ifdef RT_USING_DEVICE_SUSPEND</span>
+rt_err_t (*suspend) (rt_device_t dev);
+rt_err_t (*resumed) (rt_device_t dev);
+<span class="ot">#endif</span></code></pre>
+<p>这些接口也是上层应用通过RT-Thread设备接口进行访问的实际底层接口（如图10-4）：</p>
+<p>图10-4 设备操作接口与设备驱动程序接口的映射 即这些驱动实现的底层接口是上层应用最终访问的落脚点，例如上层应用调用rt_device_read接口进行设备读取数据操作，上层应先调用rt_device_find获得相对应的设备句柄，而在调用rt_device_read时，就是使用这个设备句柄所对应驱动的driver_read。上述的接口是一一对应关系。</p>
+<p>I/O设备模块提供的这六个接口（rt_device_init/open/read/write/control），对应到设备驱动程序的六个接口（driver_init/open/read/write/control等），可以认为是底层设备驱动必须提供的接口：</p>
+<p>方法名称 方法描述 init 设备的初始化。设备初始化完成后， 设备控制块的flag会被置成已激活状态(RT_DEVICE_FLAG_ACTIVATED)。如果设备控制块的flag不是已激活状态，那么在设备框架调用rt_device_init_all接口时将调用此设备驱动的init接口进行设备初始化；如果设备控制块中的flag标志已经设置成激活状态，那么再运行初始化接口时，会立刻返回，而不会重新进行初始化。</p>
+<p>open 打开设备。有些设备并不是系统一启动就已经打开开始运行；或者设备需要进行数据接收，但如果上层应用还未准备好，设备也不应默认已经使能并开始接收数据。所以建议在写底层驱动程序时，应在调用open接口时才使能设备。</p>
+<p>close 关闭设备。建议在打开设备时，设备驱动自行维护一个打开计数，在打开设备时进行+1操作，在关闭设备时进行-1操作，当计数器变为0时，进行真正的关闭操作。</p>
+<p>read 从设备中读取数据。参数pos指出读取数据的偏移量，但是有些设备并不一定需要指定偏移量，例如串口设备，设备驱动应忽略这个参数。而对于块设备来说，pos以及size都是以块设备的数据块大小做为单位的。例如块设备的数据块大小是512，而参数中pos = 10, size = 2，那么驱动应该返回设备中第10个块（从第0个块做为起始），共计2个块的数据。</p>
+<p>这个接口返回的类型是rt_size_t，即读到的字节数或块数目。正常情况下应该会返回参数中size的数值，如果返回零请设置对应的errno值。</p>
+<p>write 向设备中写入数据。参数pos指出写入数据的偏移量。与读操作类似，对于块设备来说，pos以及size都是以块设备的数据块大小做为单位的。 这个接口返回的类型是rt_size_t，即真实写入数据的字节数或块数目。正常情况下应该会返回参数中size的数值，如果返回零请设置对应的errno值。</p>
+<p>control 根据不同的cmd命令控制设备。命令往往是由底层各类设备驱动自定义实现。例如参数RT_DEVICE_CTRL_BLK_GETGEOME，意思是获取块设备的大小信息。</p>
+<h3 id="设备驱动实现的步骤"><a href="#TOC">设备驱动实现的步骤</a></h3>
+<p>在实现一个RT-Thread设备时，可以按照如下的步骤进行（对于一些复杂的设备驱动，例如以太网接口驱动、图形设备驱动，请参看网络组件、GUI部分章节）：</p>
+<ul>
+<li>按照RT-Thread的对象模型，扩展一个对象有两种方式：</li>
+<li>定义自己的私有数据结构，然后赋值到RT-Thread设备控制块的user_data指针上；</li>
+<li>从struct rt_device结构中进行派生。</li>
+<li>实现RT-Thread I/O设备模块中定义的6个公共设备接口，开始可以是空函数(返回类型是rt_err_t的可默认返回RT_EOK)；</li>
+<li>根据自己的设备类型定义自己的私有数据域。特别是在可能有多个相类似设备的情况下（例如串口1、2），设备接口可以共用同一套接口，不同的只是各自的数据域(例如寄存器基地址)；</li>
+<li>根据设备的类型，注册到RT-Thread设备框架中。</li>
+</ul>
+<h3 id="stm32f103的串口驱动"><a href="#TOC">STM32F103的串口驱动</a></h3>
+<p>做为一个例子，例10-1中详细分析了STM32F103的串口驱动，也包括上层应该如何使用这个设备的代码。STM32F103串口驱动代码，详细的中文注释已经放在其中了。</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：串口设备驱动头文件</span>
+<span class="co"> */</span>
+<span class="ot">#ifndef __RT_HW_SERIAL_H__</span>
+<span class="ot">#define __RT_HW_SERIAL_H__</span>
+
+<span class="ot">#include &lt;rthw.h&gt;</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="co">/* STM32F10x library definitions */</span>
+<span class="ot">#include &lt;stm32f10x.h&gt;</span>
+
+<span class="co">/* 定义接收ringbuffer缓冲区大小 */</span>
+<span class="ot">#define UART_RX_BUFFER_SIZE     64</span>
+
+<span class="co">/* 中断接收时的ringbuffer缓冲区定义 */</span>
+<span class="kw">struct</span> stm32_serial_int_rx
+{
+    rt_uint8_t  rx_buffer[UART_RX_BUFFER_SIZE];
+    rt_uint32_t read_index, save_index;
+};
+
+<span class="co">/* 串口设备类 */</span>
+<span class="kw">struct</span> stm32_serial_device
+{
+    USART_TypeDef* uart_device;
+
+    <span class="co">/* 接收结构体 */</span>
+    <span class="kw">struct</span> stm32_serial_int_rx* int_rx;
+    <span class="co">/* 打开计数 */</span>
+    rt_uint32_t ref_count;
+};
+
+<span class="co">/* 注册一个串口设备 */</span>
+rt_err_t rt_hw_serial_register(rt_device_t device, <span class="dt">const</span> <span class="dt">char</span>* name,
+        rt_uint32_t flag, <span class="kw">struct</span> stm32_serial_device *serial);
+<span class="dt">void</span> rt_hw_serial_isr(rt_device_t device);
+
+<span class="ot">#endif</span>
+
+<span class="co">/*</span>
+<span class="co"> * 程序清单：串口驱动实现文件</span>
+<span class="co"> */</span>
+<span class="ot">#include &quot;serial.h&quot;</span>
+
+<span class="co">/* RT-Thread设备驱动公共接口 */</span>
+<span class="dt">static</span> rt_err_t rt_serial_init (rt_device_t dev)
+{
+    <span class="kw">struct</span> stm32_serial_device* uart;
+
+    <span class="co">/* 获得真实的UART设备对象 */</span>
+    uart = (<span class="kw">struct</span> stm32_serial_device*) dev-&gt;user_data;
+
+    <span class="co">/* 判断设备是否已经激活了 */</span>
+    <span class="kw">if</span> (!(dev-&gt;flag &amp; RT_DEVICE_FLAG_ACTIVATED))
+    {
+        <span class="kw">if</span> (dev-&gt;flag &amp; RT_DEVICE_FLAG_INT_RX)
+        {
+            <span class="co">/* 如果是中断接收模式，初始化接收的缓冲区 */</span>
+            rt_memset(uart-&gt;int_rx-&gt;rx_buffer, <span class="dv">0</span>,
+                <span class="kw">sizeof</span>(uart-&gt;int_rx-&gt;rx_buffer));
+            uart-&gt;int_rx-&gt;read_index = <span class="dv">0</span>;
+            uart-&gt;int_rx-&gt;save_index = <span class="dv">0</span>;
+        }
+
+        <span class="co">/* 使能USART */</span>
+        USART_Cmd(uart-&gt;uart_device, ENABLE);
+        <span class="co">/* 设置设备为激活状态 */</span>
+        dev-&gt;flag |= RT_DEVICE_FLAG_ACTIVATED;
+    }
+
+    <span class="kw">return</span> RT_EOK;
+}
+
+<span class="co">/* 打开设备 */</span>
+<span class="dt">static</span> rt_err_t rt_serial_open(rt_device_t dev, rt_uint16_t oflag)
+{
+    <span class="kw">if</span> (dev-&gt;flag &amp; RT_DEVICE_FLAG_INT_RX)
+    {
+        <span class="co">/* 中断接收模式，使能中断 */</span>
+    }
+    <span class="kw">return</span> RT_EOK;
+}
+
+<span class="co">/* 关闭设备 */</span>
+<span class="dt">static</span> rt_err_t rt_serial_close(rt_device_t dev)
+{
+    <span class="kw">if</span> (dev-&gt;flag &amp; RT_DEVICE_FLAG_INT_RX)
+    {
+        <span class="co">/* 中断接收模式，关闭中断 */</span>
+    }
+    <span class="kw">return</span> RT_EOK;
+}
+
+<span class="co">/* 从设备中读取数据 */</span>
+<span class="dt">static</span> rt_size_t rt_serial_read (rt_device_t dev, rt_off_t pos,
+        <span class="dt">void</span>* buffer, rt_size_t size)
+{
+    rt_base_t level;
+    rt_uint8_t* ptr;
+    rt_err_t err_code;
+    <span class="kw">struct</span> stm32_serial_device* uart;
+    <span class="kw">struct</span> stm32_serial_int_rx* int_rx;
+
+    <span class="co">/* 初始化变量 */</span>
+    ptr = buffer;
+    err_code = RT_EOK;
+    uart = (<span class="kw">struct</span> stm32_serial_device*)dev-&gt;user_data;
+    int_rx = uart-&gt;int_rx;
+
+    <span class="kw">if</span> (dev-&gt;flag &amp; RT_DEVICE_FLAG_INT_RX)
+    {
+        <span class="co">/*</span>
+<span class="co">         * 中断模式接收，中断模式接收在中断服务例程中已预先收取到缓冲区中，</span>
+<span class="co">         * 所以这里只需要从缓冲区中复制出数据</span>
+<span class="co">         */</span>
+        <span class="kw">while</span> (size)
+        {
+            <span class="co">/* 涉及到与中断服务例程共享缓冲区操作，需要关闭中断 */</span>
+            level = rt_hw_interrupt_disable();
+
+            <span class="co">/* 先判断缓冲区是否是空的 */</span>
+            <span class="kw">if</span> (int_rx-&gt;read_index != int_rx-&gt;save_index)
+            {
+                <span class="co">/* 缓冲区非空，读取一个字符 */</span>
+                *ptr++ = int_rx-&gt;rx_buffer[int_rx-&gt;read_index];
+                size--;
+
+                <span class="co">/* 移动读索引到下一个位置，如果到达末尾，进行复位到0 */</span>
+                int_rx-&gt;read_index ++;
+                <span class="kw">if</span> (int_rx-&gt;read_index &gt;= UART_RX_BUFFER_SIZE)
+                    int_rx-&gt;read_index = <span class="dv">0</span>;
+            }
+            <span class="kw">else</span>
+            {
+                <span class="co">/* 缓冲区空，设置错误号 */</span>
+                err_code = -RT_EEMPTY;
+
+                <span class="co">/* 使能中断 */</span>
+                rt_hw_interrupt_enable(level);
+                <span class="kw">break</span>;
+            }
+
+            <span class="co">/* 使能中断 */</span>
+            rt_hw_interrupt_enable(level);
+        }
+    }
+    <span class="kw">else</span>
+    {
+        <span class="co">/* 轮询模式，直接从串口设备中读取数据  */</span>
+        <span class="kw">while</span> ((rt_uint32_t)ptr - (rt_uint32_t)buffer &lt; size)
+        {
+            <span class="kw">while</span> (uart-&gt;uart_device-&gt;SR &amp; USART_FLAG_RXNE)
+            {
+                *ptr = uart-&gt;uart_device-&gt;DR &amp; <span class="bn">0xff</span>;
+                ptr ++;
+            }
+        }
+    }
+
+    <span class="co">/* 设置错误号 */</span>
+    rt_set_errno(err_code);
+    <span class="co">/* 返回独到的字节数 */</span>
+    <span class="kw">return</span> (rt_uint32_t)ptr - (rt_uint32_t)buffer;
+}
+
+<span class="co">/* 向设备中写入数据 */</span>
+<span class="dt">static</span> rt_size_t rt_serial_write (rt_device_t dev, rt_off_t pos,
+        <span class="dt">const</span> <span class="dt">void</span>* buffer, rt_size_t size)
+{
+    rt_uint8_t* ptr;
+    rt_err_t err_code;
+    <span class="kw">struct</span> stm32_serial_device* uart;
+
+    err_code = RT_EOK;
+    ptr = (rt_uint8_t*)buffer;
+    uart = (<span class="kw">struct</span> stm32_serial_device*)dev-&gt;private;
+
+    <span class="kw">if</span> ((dev-&gt;flag &amp; RT_DEVICE_FLAG_INT_TX) ||
+        (dev-&gt;flag &amp; RT_DEVICE_FLAG_DMA_TX))
+    {
+        <span class="co">/* 不支持中断发送和DMA发送 */</span>
+        RT_ASSERT(<span class="dv">0</span>);
+    }
+    <span class="kw">else</span>
+    {
+        <span class="co">/* 轮询模式 */</span>
+        <span class="kw">if</span> (dev-&gt;flag &amp; RT_DEVICE_FLAG_STREAM)
+        {
+            <span class="co">/* 流模式 */</span>
+            <span class="kw">while</span> (size)
+            {
+                <span class="kw">if</span> (*ptr == <span class="ch">&#39;\n&#39;</span>)
+                {
+                    <span class="kw">while</span> (!(uart-&gt;uart_device-&gt;SR &amp; USART_FLAG_TXE));
+                    uart-&gt;uart_device-&gt;DR = <span class="ch">&#39;\r&#39;</span>;
+                }
+
+                <span class="co">/* 写入发送字符 */</span>
+                <span class="kw">while</span> (!(uart-&gt;uart_device-&gt;SR &amp; USART_FLAG_TXE));
+                uart-&gt;uart_device-&gt;DR = (*ptr &amp; <span class="bn">0x1FF</span>);
+
+                ++ptr; --size;
+            }
+        }
+        <span class="kw">else</span>
+        {
+            <span class="co">/* 直接写入数据 */</span>
+            <span class="kw">while</span> (size)
+            {
+                <span class="co">/* 写入发送字符 */</span>
+                <span class="kw">while</span> (!(uart-&gt;uart_device-&gt;SR &amp; USART_FLAG_TXE));
+                uart-&gt;uart_device-&gt;DR = (*ptr &amp; <span class="bn">0x1FF</span>);
+
+                ++ptr; --size;
+            }
+        }
+    }
+
+    <span class="co">/* 设置错误号 */</span>
+    rt_set_errno(err_code);
+
+    <span class="co">/* 返回写入成功的字节数 */</span>
+    <span class="kw">return</span> (rt_uint32_t)ptr - (rt_uint32_t)buffer;
+}
+
+<span class="co">/* 设备控制操作 */</span>
+<span class="dt">static</span> rt_err_t rt_serial_control (rt_device_t dev,
+        rt_uint8_t cmd, <span class="dt">void</span> *args)
+{
+    <span class="kw">struct</span> stm32_serial_device* uart;
+
+    RT_ASSERT(dev != RT_NULL);
+
+    <span class="co">/* 获得真正的串口对象 */</span>
+    uart = (<span class="kw">struct</span> stm32_serial_device*)dev-&gt;user_data;
+    <span class="kw">switch</span> (cmd)
+    {
+    <span class="kw">case</span> RT_DEVICE_CTRL_SUSPEND:
+        <span class="co">/* 挂起设备 */</span>
+        dev-&gt;flag |= RT_DEVICE_FLAG_SUSPENDED;
+        USART_Cmd(uart-&gt;uart_device, DISABLE);
+        <span class="kw">break</span>;
+
+    <span class="kw">case</span> RT_DEVICE_CTRL_RESUME:
+        <span class="co">/* 唤醒设备 */</span>
+        dev-&gt;flag &amp;= ~RT_DEVICE_FLAG_SUSPENDED;
+        USART_Cmd(uart-&gt;uart_device, ENABLE);
+        <span class="kw">break</span>;
+    }
+
+    <span class="kw">return</span> RT_EOK;
+}
+
+<span class="co">/*</span>
+<span class="co"> * 向系统中注册串口设备</span>
+<span class="co"> */</span>
+rt_err_t rt_hw_serial_register(rt_device_t device, <span class="dt">const</span> <span class="dt">char</span>* name,
+        rt_uint32_t flag, <span class="kw">struct</span> stm32_serial_device *serial)
+{
+    RT_ASSERT(device != RT_NULL);
+
+    <span class="co">/* 当前不支持DMA接收和中断发送 */</span>
+    <span class="kw">if</span> ((flag &amp; RT_DEVICE_FLAG_DMA_RX) ||
+        (flag &amp; RT_DEVICE_FLAG_INT_TX))
+    {
+        RT_ASSERT(<span class="dv">0</span>);
+    }
+
+    <span class="co">/* 设置设备驱动类型 */</span>
+    device-&gt;type        = RT_Device_Class_Char;
+    device-&gt;rx_indicate = RT_NULL;
+    device-&gt;tx_complete = RT_NULL;
+    <span class="co">/* 设置设备驱动公共接口函数 */</span>
+    device-&gt;init        = rt_serial_init;
+    device-&gt;open        = rt_serial_open;
+    device-&gt;close       = rt_serial_close;
+    device-&gt;read        = rt_serial_read;
+    device-&gt;write       = rt_serial_write;
+    device-&gt;control     = rt_serial_control;
+    device-&gt;user_data   = serial;
+
+    <span class="co">/* 注册一个字符设备 */</span>
+    <span class="kw">return</span> rt_device_register(device, name, RT_DEVICE_FLAG_RDWR | flag);
+}
+
+<span class="co">/* ISR for serial interrupt */</span>
+<span class="dt">void</span> rt_hw_serial_isr(rt_device_t device)
+{
+    rt_base_t level;
+    <span class="kw">struct</span> stm32_serial_device* uart;
+    <span class="kw">struct</span> stm32_serial_int_rx* int_rx;
+
+    uart = (<span class="kw">struct</span> stm32_serial_device*) device-&gt;user_data;
+    int_rx = uart-&gt;int_rx;
+
+    <span class="kw">if</span>(USART_GetITStatus(uart-&gt;uart_device, USART_IT_RXNE) != RESET)
+    {
+        <span class="co">/* 中断模式接收 */</span>
+        RT_ASSERT(device-&gt;flag &amp; RT_DEVICE_FLAG_INT_RX);
+
+        <span class="co">/* 保存在接收缓冲区中 */</span>
+        <span class="kw">while</span> (uart-&gt;uart_device-&gt;SR &amp; USART_FLAG_RXNE)
+        {
+            <span class="co">/* 先关闭中断(由于是与线程做同步，此处也可以不关闭中断) */</span>
+            level = rt_hw_interrupt_disable();
+
+            <span class="co">/* 保存一个字符 */</span>
+            int_rx-&gt;rx_buffer[int_rx-&gt;save_index] =
+                    uart-&gt;uart_device-&gt;DR &amp; <span class="bn">0xff</span>;
+            <span class="co">/* 移动保存索引到下一个位置，如果已经到缓冲区的末端，复位到0 */</span>
+            int_rx-&gt;save_index ++;
+            <span class="kw">if</span> (int_rx-&gt;save_index &gt;= UART_RX_BUFFER_SIZE)
+                int_rx-&gt;save_index = <span class="dv">0</span>;
+
+            <span class="co">/* 如果下一个位置已经达到读索引位置，丢弃读索引位置的字符 */</span>
+            <span class="kw">if</span> (int_rx-&gt;save_index == int_rx-&gt;read_index)
+            {
+                int_rx-&gt;read_index ++;
+                <span class="kw">if</span> (int_rx-&gt;read_index &gt;= UART_RX_BUFFER_SIZE)
+                    int_rx-&gt;read_index = <span class="dv">0</span>;
+            }
+
+            <span class="co">/* 使能中断 */</span>
+            rt_hw_interrupt_enable(level);
+        }
+
+        <span class="co">/* 清除中断 */</span>
+        USART_ClearITPendingBit(uart-&gt;uart_device, USART_IT_RXNE);
+
+        <span class="co">/* 调用接收指示回调函数 */</span>
+        <span class="kw">if</span> (device-&gt;rx_indicate != RT_NULL)
+        {
+            rt_size_t rx_length;
+
+            <span class="co">/* 获得已接收的长度 */</span>
+            rx_length = int_rx-&gt;read_index &gt; int_rx-&gt;save_index ?
+                UART_RX_BUFFER_SIZE - int_rx-&gt;read_index +
+                int_rx-&gt;save_index :
+                int_rx-&gt;save_index - int_rx-&gt;read_index;
+            <span class="co">/* 执行回调函数 */</span>
+            device-&gt;rx_indicate(device, rx_length);
+        }
+    }
+
+    <span class="kw">if</span> (USART_GetITStatus(uart-&gt;uart_device, USART_IT_TC) != RESET)
+    {
+        <span class="co">/* 清除中断 */</span>
+        USART_ClearITPendingBit(uart-&gt;uart_device, USART_IT_TC);
+    }
+}</code></pre>
+<p>对于包含中断发送、接收的情况的驱动程序，例10-2给出了具体的使用代码。在这个例子中，用户线程将在两个设备上(UART1, UART2)读取数据，然后再写到UART1设备中。</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/*</span>
+<span class="co"> * 程序清单：串口设备操作例程</span>
+<span class="co"> *</span>
+<span class="co"> * 在这个例程中，将启动一个devt线程，然后打开串口1和2</span>
+<span class="co"> * 当串口1和2有输入时，将读取其中的输入数据然后写入到</span>
+<span class="co"> * 串口1设备中。</span>
+<span class="co"> *</span>
+<span class="co"> */</span>
+<span class="ot">#include &lt;rtthread.h&gt;</span>
+
+<span class="co">/* UART接收消息结构*/</span>
+<span class="kw">struct</span> rx_msg
+{
+    rt_device_t dev;
+    rt_size_t size;
+};
+<span class="co">/* 用于接收消息的消息队列*/</span>
+<span class="dt">static</span> rt_mq_t rx_mq;
+<span class="co">/* 接收线程的接收缓冲区*/</span>
+<span class="dt">static</span> <span class="dt">char</span> uart_rx_buffer[<span class="dv">64</span>];
+
+<span class="co">/* 数据到达回调函数*/</span>
+rt_err_t uart_input(rt_device_t dev, rt_size_t size)
+{
+    <span class="kw">struct</span> rx_msg msg;
+    msg.dev = dev;
+    msg.size = size;
+
+    <span class="co">/* 发送消息到消息队列中*/</span>
+    rt_mq_send(rx_mq, &amp;msg, <span class="kw">sizeof</span>(<span class="kw">struct</span> rx_msg));
+
+    <span class="kw">return</span> RT_EOK;
+}
+
+<span class="dt">void</span> device_thread_entry(<span class="dt">void</span>* parameter)
+{
+    <span class="kw">struct</span> rx_msg msg;
+    <span class="dt">int</span> count = <span class="dv">0</span>;
+    rt_device_t device, write_device;
+    rt_err_t result = RT_EOK;
+
+    <span class="co">/* 查找系统中的串口1设备 */</span>
+    device = rt_device_find(<span class="st">&quot;uart1&quot;</span>);
+    <span class="kw">if</span> (device!= RT_NULL)
+    {
+        <span class="co">/* 设置回调函数及打开设备*/</span>
+        rt_device_set_rx_indicate(device, uart_input);
+        rt_device_open(device, RT_DEVICE_OFLAG_RDWR);
+    }
+    <span class="co">/* 设置写设备为uart1设备 */</span>
+    write_device = device;
+
+    <span class="co">/* 查找系统中的串口2设备 */</span>
+    device= rt_device_find(<span class="st">&quot;uart2&quot;</span>);
+    <span class="kw">if</span> (device_!= RT_NULL)
+    {
+        <span class="co">/* 设置回调函数及打开设备*/</span>
+        rt_device_set_rx_indicate(device, uart_input);
+        rt_device_open(device, RT_DEVICE_OFLAG_RDWR);
+    }
+
+    <span class="kw">while</span> (<span class="dv">1</span>)
+    {
+        <span class="co">/* 从消息队列中读取消息*/</span>
+        result = rt_mq_recv(rx_mq, &amp;msg, <span class="kw">sizeof</span>(<span class="kw">struct</span> rx_msg), <span class="dv">50</span>);
+        <span class="kw">if</span> (result == -RT_ETIMEOUT)
+        {
+            <span class="co">/* 接收超时*/</span>
+            rt_kprintf(<span class="st">&quot;timeout count:%d</span><span class="ch">\n</span><span class="st">&quot;</span>, ++count);
+        }
+
+        <span class="co">/* 成功收到消息*/</span>
+        <span class="kw">if</span> (result == RT_EOK)
+        {
+            rt_uint32_t rx_length;
+            rx_length = (<span class="kw">sizeof</span>(uart_rx_buffer) - <span class="dv">1</span>) &gt; msg.size ?
+                    msg.size : <span class="kw">sizeof</span>(uart_rx_buffer) - <span class="dv">1</span>;
+
+            <span class="co">/* 读取消息*/</span>
+            rx_length = rt_device_read(msg.dev, <span class="dv">0</span>, &amp;uart_rx_buffer[<span class="dv">0</span>],
+                    rx_length);
+            uart_rx_buffer[rx_length] = &#39;\<span class="dv">0</span>&#39;;
+
+            <span class="co">/* 写到写设备中*/</span>
+            <span class="kw">if</span> (write_device != RT_NULL)
+                rt_device_write(write_device, <span class="dv">0</span>, &amp;uart_rx_buffer[<span class="dv">0</span>],
+                        rx_length);
+        }
+    }
+}
+
+<span class="dt">int</span> rt_application_init()
+{
+    <span class="co">/* 创建devt线程*/</span>
+    rt_thread_t thread = rt_thread_create(<span class="st">&quot;devt&quot;</span>,
+        device_thread_entry, RT_NULL,
+        <span class="dv">1024</span>, <span class="dv">25</span>, <span class="dv">7</span>);
+    <span class="co">/* 创建成功则启动线程*/</span>
+    <span class="kw">if</span> (thread_!= RT_NULL)
+        rt_thread_startup(&amp;thread);
+}</code></pre>
+<p>线程devt启动后，系统将先查找是否存在uart1, uart2这两个设备，如果存在则设置数据接收回调函数。在数据接收回调函数中，系统将对应的设备句柄，接收到的数据长度填充到一个消息结构体（struct rx_msg）上，然后发送到消息队列rx_mq中。devt线程在打开设备后，将在消息队列中等待消息的到来。如果消息队列是空的，devt线程将被阻塞，直到它接被唤醒，被唤醒的条件是devt线程收到消息后或在0.5秒(50 OS tick)内都没收到消息的情况下。这两种被唤醒的情况，可以根据rt_mq_recv函数返回值的不同，可以区分出devt线程是因为什么原因而被唤醒。如果devt线程是因为接收到消息而被唤醒（rt_mq_recv函数的返回值是RT_EOK），那么它将主动调用rt_device_read去读取消息，然后写入UART1设备中。</p>
+<h1 id="异常与中断"><a href="#TOC">异常与中断</a></h1>
+<h1 id="应用模块"><a href="#TOC">应用模块</a></h1>
+<h1 id="移植"><a href="#TOC">移植</a></h1>
+<h1 id="scons构建系统"><a href="#TOC">scons构建系统</a></h1>
+<p>scons是一个由Python语言编写的构建系统，类似于GNU Make。它采用不同于通常Makefile文件的SConstruct和SConscript文件。这些文件也是Python脚本，能够使用标准的Python语法来编写。所以在SConstruct、SConscript文件中可以调用Python标准库进行各类复杂的处理，而不局限于Makefile设定的规则。</p>
+<p>scons本身的用户手册：</p>
+<p>http://www.scons.org/doc/production/HTML/scons-user/index.html</p>
+<h2 id="简单的scontruct"><a href="#TOC">简单的SContruct</a></h2>
+<p>例如针对一个hello world的简单程序，假设它的源文件是：</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/* file: hello.c */</span>
+<span class="ot">#include &lt;stdio.h&gt;</span>
+
+<span class="dt">int</span> main(<span class="dt">int</span> argc, <span class="dt">char</span>** argv)
+{
+    printf(<span class="st">&quot;Hello, world!</span><span class="ch">\n</span><span class="st">&quot;</span>);
+}</code></pre>
+<p>只需要在这个文件目录下添加一个SConstruct文件，它的内容是：</p>
+<pre><code>Program(&#39;hello.c&#39;)</code></pre>
+<p>然后在这个目录下执行命令：</p>
+<pre><code>% scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+cc -o hello.o -c hello.c
+cc -o hello hello.o
+scons: done building targets.</code></pre>
+<p>将会在当前目录下生成hello的应用程序。所以相比于Makefile，一个简单的hello.c到hello的转换，只需要一句话。如果hello是由两个文件编译而成，也只需要把SConstruct文件修改成：</p>
+<pre><code>Program([&#39;hello.c&#39;, &#39;file1.c&#39;])</code></pre>
+<p>同时也可以指定编译出的目标文件名称：</p>
+<pre><code>Program(&#39;program&#39;, [&#39;hello.c&#39;, &#39;file1.c&#39;])</code></pre>
+<p>有的时候也可以偷偷懒，例如把当面目录下的所有C文件都作为源文件来编译：</p>
+<pre><code>Program(&#39;program&#39;, Glob(&#39;*.c&#39;))</code></pre>
+<p>Glob函数就是用于使用当前目录下的所有C文件。除了Glob函数以外，也有Split函数。Split 函数写的脚本具备更好的可读性以及更精确的可定制性：</p>
+<pre><code>src = Split(&#39;&#39;&#39;
+    hello.c
+    file1.c
+    &#39;&#39;&#39;)
+Program(&#39;program&#39;, src)</code></pre>
+<p>它的效果与 <code>Program('program', ['hello.c', 'file1.c'])</code> 是一致的，但具有更 清晰的可读性。</p>
+<h2 id="sconstruct与sconscript"><a href="#TOC">SConstruct与SConscript</a></h2>
+<p>对于复杂、大型的系统，显然不仅仅是一个目录下的几个文件就可以搞定的，很可能是由数个文件夹一级级组合而成。</p>
+<p>在 scons中，可以编写SConscript脚本文件来编译这些相对独立目录中的文件，同时也可以使用scons中的Export和Import函数在SConstruct与SConscript文件之间共享数据（也就是Python中的一个对象数据）。</p>
+<p>假设</p>
+<h2 id="rt-thread构建"><a href="#TOC">RT-Thread构建</a></h2>
+<h3 id="编写bsp的sconstruct"><a href="#TOC">编写BSP的SConstruct</a></h3>
+<h3 id="编写组件的sconscript"><a href="#TOC">编写组件的SConscript</a></h3>
+<h3 id="rt-thread-building脚本"><a href="#TOC">RT-Thread building脚本</a></h3>
+<p>在RT-Thread tools目录下存放有RT-Thread自己定义的一些辅助building的脚本，例如用于自动生成RT-Thread针对一些IDE集成开发环境的工程文件。其中最主要的是building.py脚本</p>
+<h3 id="进阶"><a href="#TOC">进阶</a></h3>
+<h1 id="finsh-shell"><a href="#TOC">finsh shell</a></h1>
+<h2 id="简介-1"><a href="#TOC">简介</a></h2>
+<p>finsh是RT-Thread的命令行外壳（shell）。</p>
+<div class="figure">
+<img src="figures/finsh.png" alt="finsh的数据流结构" /><p class="caption">finsh的数据流结构</p>
+</div>
+<h1 id="文件系统"><a href="#TOC">文件系统</a></h1>
+<h2 id="简介-2"><a href="#TOC">简介</a></h2>
+<h1 id="lwip---轻型tcpip协议栈"><a href="#TOC">lwIP - 轻型TCP/IP协议栈</a></h1>
+<h2 id="简介-3"><a href="#TOC">简介</a></h2>
+<h1 id="图形用户界面"><a href="#TOC">图形用户界面</a></h1>
+<h2 id="简介-4"><a href="#TOC">简介</a></h2>
+<h2 id="服务端客户端构架"><a href="#TOC">服务端/客户端构架</a></h2>
+<h1 id="posix接口"><a href="#TOC">POSIX接口</a></h1>
+<h2 id="简介-5"><a href="#TOC">简介</a></h2>
+<h1 id="电子书markdown入门"><a href="#TOC">电子书markdown入门</a></h1>
+<p>本章节附录主要描述电子书环境下书写markdown文件的规则，包括markdown本身的规则，也包括用于电子书而扩展的一些规则。</p>
+<h2 id="标题段落区块代码"><a href="#TOC">标题、段落、区块代码</a></h2>
+<p>电子书中的每个章节，章节标题行首都由一个 <code>#</code> 包围，例如： # 章节名称 #</p>
+<p>每个章节文件有且仅有一个章节标题，其余的都是它的子标题。每个子标题由两个到六个 <code>#</code> 包围而成，从而形成标题2到标题6阶。</p>
+<p>一个段落是由一个以上的连接的行句组成，而一个以上的空行则会划分出不同的段落（空行的定义是显式上看起来是空行，就被视为空行，例如有一行只有空白和 tab，那该行也会被视为空行），一般的段落不需要用空白或换行缩进。</p>
+<p>在markdown电子书中不存在引用的情况，相替换的，建议使用代码方式风格来替换引用。代码风格可以在文本前加入4个空格，例如：</p>
+<pre><code>引用的区块#1
+应用的区块#2</code></pre>
+<h3 id="修辞和强调"><a href="#TOC">修辞和强调</a></h3>
+<p>Markdown 使用星号和底线来标记需要强调的区段。例如：</p>
+<pre><code>这是一个 **强调** 的文本，这是一个加 __底线__ 的文本。</code></pre>
+<p>这是一个 <strong>强调</strong> 的文本，这是一个加 <strong>底线</strong> 的文本。</p>
+<h2 id="列表"><a href="#TOC">列表</a></h2>
+<p>无序列表使用星号、加号和减号来做为列表的项目标记，这些符号是都可以使用的，使用星号：</p>
+<pre><code>* Candy.
+* Gum.
+* Booze.</code></pre>
+<p>加号：</p>
+<pre><code>+ Candy.
++ Gum.
++ Booze.</code></pre>
+<p>和减号</p>
+<pre><code>- Candy.
+- Gum.
+- Booze.</code></pre>
+<p>有序的列表则是使用一般的数字接着一个英文句点作为项目标记：</p>
+<pre><code>1. Red
+2. Green
+3. Blue</code></pre>
+<p>如果你在项目之间插入空行，那项目的内容会形成段落，可以在一个项目内放上多个段落，只要在它前面缩排 4 个空白或 1 个 tab 。</p>
+<pre><code>* A list item.
+With multiple paragraphs.
+
+* Another item in the list.</code></pre>
+<ul>
+<li><p>A list item. With multiple paragraphs.</p></li>
+<li><p>Another item in the list.</p></li>
+</ul>
+<h3 id="链接"><a href="#TOC">链接</a></h3>
+<p>Markdown 支援两种形式的链接语法： <em>行内</em> 和 <em>参考</em> 两种形式，两种都是使用角括号来把文字转成连结。</p>
+<p>行内形式是直接在后面用括号直接接上链接：</p>
+<pre><code>This is an [example link](http://example.com/).</code></pre>
+<p>实际效果如：</p>
+<p>This is an <a href="http://example.com/">example link</a>.</p>
+<p>你也可以选择性的加上 title 属性：</p>
+<pre><code>This is an [example link](http://example.com/ &quot;With a Title&quot;).</code></pre>
+<p>实际效果如：</p>
+<p>This is an <a href="http://example.com/" title="With a Title">example link</a>.</p>
+<p>参考形式的链接让你可以为链接定一个名称，之后你可以在文件的其他地方定义该链接的内容：</p>
+<pre><code>I get 10 times more traffic from [Google][1] than from
+[Yahoo][2] or [MSN][3].
+
+[1]: http://google.com/ &quot;Google&quot;
+[2]: http://search.yahoo.com/ &quot;Yahoo Search&quot;
+[3]: http://search.msn.com/ &quot;MSN Search&quot;</code></pre>
+<p>实际效果如：</p>
+<p>I get 10 times more traffic from <a href="http://google.com/" title="Google">Google</a> than from <a href="http://search.yahoo.com/" title="Yahoo Search">Yahoo</a> or <a href="http://search.msn.com/" title="MSN Search">MSN</a>.</p>
+<p>title 属性是选择性的，链接名称可以用字母、数字和空格，但是不分大小写：</p>
+<pre><code>I start my morning with a cup of coffee and
+[The New York Times][NY Times].
+
+[ny times]: http://www.nytimes.com/</code></pre>
+<p>实际效果如：</p>
+<p>I start my morning with a cup of coffee and <a href="http://www.nytimes.com/">The New York Times</a>.</p>
+<h3 id="图片"><a href="#TOC">图片</a></h3>
+<p>图片的语法和链接很像，同时图也可以选择一个标题，标题序号会在生成PDF时自动加上序号，例如：</p>
+<pre><code>![标题](figures/logo.png)</code></pre>
+<div class="figure">
+<img src="figures/logo.png" alt="标题" /><p class="caption">标题</p>
+</div>
+<p>其中，请确保指向的图形文件在figures目录下存在，否则在生成PDF文件时会报错。</p>
+<h3 id="代码"><a href="#TOC">代码</a></h3>
+<p>在电子书中，当转换成PDF时，可以支持代码的语法高亮，可以使用如下的形式（也可以根据实际排版情况，在代码前加入4个或2个空格）：</p>
+<pre><code>~~~{.c}
+#include &lt;stdio.h&gt;
+
+int main(int argc, char** argv)
+{
+    printf(&quot;hello\n&quot;);
+    return 0;
+}
+~~~</code></pre>
+<p>它的效果类似于这样：</p>
+<pre class="sourceCode c"><code class="sourceCode c">    <span class="ot">#include &lt;stdio.h&gt;</span>
+
+    <span class="dt">int</span> main(<span class="dt">int</span> argc, <span class="dt">char</span>** argv)
+    {
+        printf(<span class="st">&quot;hello</span><span class="ch">\n</span><span class="st">&quot;</span>);
+        <span class="kw">return</span> <span class="dv">0</span>;
+    }</code></pre>
+
+       </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">RT-Thread RTOS maintained by <a href="https://github.com/RT-Thread">RT-Thread Development Team</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+</body>
+</html>
