@@ -166,7 +166,7 @@ namespace :html do
   OLD_BRANCH = `git rev-parse --abbrev-ref HEAD`.chomp
 
   def exec_cmds(cmds)
-    cmds.split("\n").each { |line| puts line }
+    cmds.split("\n").each { |line| sh line }
   end
 
   desc "create #{GH_PAGES_BRANCH} branch"
@@ -200,6 +200,7 @@ git checkout #{GH_PAGES_BRANCH}
 mv manual-doc.zh.html index.html
 git commit -a -u -m "Update pages"
 git checkout #{OLD_BRANCH}
+git push origin #{GH_PAGES_BRANCH}
 CMD
 
     exec_cmds PUB_CMD
