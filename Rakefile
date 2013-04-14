@@ -162,7 +162,10 @@ end
 namespace :html do
   GH_PAGES_BRANCH = "gh-pages"
   GH_PAGES_INDEX = "index.html"
-  HTML_EBOOK = "manual-doc.zh.html"
+  EBOOK_NAME = "rt_thread_manual"
+  EBOOK_LANG = "zh"
+  EBOOK_FMT = "html"
+  EBOOK_FILE = "#{EBOOK_NAME}.#{EBOOK_LANG}.#{EBOOK_FMT}"
   OLD_BRANCH = `git rev-parse --abbrev-ref HEAD`.chomp
 
   def exec_cmds(cmds)
@@ -188,19 +191,21 @@ CMD
     end
   end
 
-  file HTML_EBOOK do
-    exec_cmds "./mkbok -b html"
+  file EBOOK_FILE do
+    exec_cmds "./mkbok -b #{EBOOK_FMT} -n #{EBOOK_NAME} -l #{EBOOK_LANG}"
   end
 
+  desc "generate html"
+  task :generate => [EBOOK_FILE]
+
   desc "publish html to Github pages"
-  task :publish => [HTML_EBOOK, :branch] do
+  task :publish => [:generate, :branch] do
 
 PUB_CMD=<<CMD
 git checkout #{GH_PAGES_BRANCH}
-mv manual-doc.zh.html index.html
+mv #{EBOOK_FILE} index.html
 git commit -a -u -m "Update pages"
 git checkout #{OLD_BRANCH}
-git push origin #{GH_PAGES_BRANCH}
 CMD
 
     exec_cmds PUB_CMD
