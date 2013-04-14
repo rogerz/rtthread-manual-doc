@@ -203,8 +203,8 @@ CMD
 
 PUB_CMD=<<CMD
 git checkout #{GH_PAGES_BRANCH}
-mv #{EBOOK_FILE} index.html
-git commit -a -u -m "Update pages"
+mv #{EBOOK_FILE} #{GH_PAGES_INDEX}
+git diff --quiet || git commit -a -u -m "Update pages"
 git checkout #{OLD_BRANCH}
 CMD
 
